@@ -23,7 +23,11 @@ func (m itemPresistentRepository) SaveItem(item *item.Item) (err error) {
 }
 
 func (m itemPresistentRepository) GetItems(offset, limit int64, search string) (items []item.Item, total int64, err error) {
-	err = m.DB.Limit(int(limit)).Offset(int(offset)).Find(&items).Error
+	total = 0
+	err = m.DB.Limit(int(limit)).Offset(int(offset)).Find(&items).Count(&total).Error
+	if err != nil {
+		return
+	}
 	return
 }
 

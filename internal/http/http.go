@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -24,7 +25,10 @@ func HttpRun(port string) {
 
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN: fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
-			"172.20.0.3", "dev_user", "dev_password", "pos", "5432"),
+			viper.GetString("database.host"),
+			viper.GetString("database.user"),
+			viper.GetString("database.pass"),
+			viper.GetString("database.name"), viper.GetString("database.port")),
 		PreferSimpleProtocol: true, // disables implicit prepared statement usage
 	}), &gorm.Config{})
 	if err != nil {

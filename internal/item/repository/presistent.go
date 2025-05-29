@@ -3,6 +3,7 @@ package repository
 import (
 	"pos/internal/item"
 
+	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
@@ -11,6 +12,9 @@ type itemPresistentRepository struct {
 }
 
 func NewItemPresistenRepository(db *gorm.DB) item.ItemRepository {
+	if viper.GetString("seed") == "true" {
+		SeedItem(db)
+	}
 	db.AutoMigrate(&item.Item{})
 	return &itemPresistentRepository{
 		DB: db,

@@ -15,5 +15,5 @@ func init() {
 
 }
 func main() {
-	http.HttpRun(viper.GetString("server.port"))
+	http.HttpRun(viper.GetString("server.address") + ":" + viper.GetString("server.port"))
 }

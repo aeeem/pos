@@ -41,5 +41,5 @@ func HttpRun(port string) {
 	itemRepo := itemrepository.NewItemPresistenRepository(db)
 	itemUC := itemUsecase.NewItemUsecase(itemRepo)
 	itemHandler.NewItemHandler(app, myValidator, itemUC)
-	log.Println(app.Listen(":" + port))
+	log.Println(app.Listen(port))
 }

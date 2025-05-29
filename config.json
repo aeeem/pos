@@ -2,16 +2,16 @@
   "debug": true,
   "server": {
     "address": "0.0.0.0:9090",
-    "port": "3434"
+    "port": "80"
   },
   "context": {
     "timeout": 2
   },
   "ocpi_sync_rate": "2m",
   "database": {
-    "host": "172.20.0.3",
+    "host": "localhost",
     "port": "5432",
-    "user": "dev_user",
+    "user": "postgres",
     "pass": "dev_password",
     "name": "pos"
   },

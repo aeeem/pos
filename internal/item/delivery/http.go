@@ -3,8 +3,10 @@ package delivery
 import (
 	"encoding/json"
 	"fmt"
+	"pos/internal/helper"
 	http_error "pos/internal/http_error"
 	"pos/internal/item"
+	"pos/internal/model"
 	"pos/internal/validator"
 	"strings"
 
@@ -29,7 +31,7 @@ func NewItemHandler(f *fiber.App, validator *validator.XValidator, itemUsecase i
 }
 
 func (h *ItemHandler) GetItems(c *fiber.Ctx) error {
-	GetRequest := GetRequest{
+	GetRequest := helper.GetRequest{
 		Page:   c.QueryInt("page"),
 		Limit:  c.QueryInt("limit"),
 		Search: c.Query("search"),
@@ -96,7 +98,7 @@ func (h *ItemHandler) SaveItem(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		}
 	}
-	Items := item.Item{
+	Items := model.Item{
 		ItemName:     SaveItemRequest.ItemName,
 		MaxPriceItem: SaveItemRequest.MaxPrice,
 	}

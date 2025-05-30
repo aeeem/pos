@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	viper.SetConfigFile(`/root/go/src/pos/config.json`)
+	viper.SetConfigFile(`./config.json`)
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(err)

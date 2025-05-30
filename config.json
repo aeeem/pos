@@ -1,19 +1,20 @@
 {
   "debug": true,
   "server": {
-    "address": "0.0.0.0:9090",
-    "port": "80"
+    "address": "0.0.0.0",
+    "port": "3434"
   },
   "context": {
     "timeout": 2
   },
   "ocpi_sync_rate": "2m",
   "database": {
-    "host": "localhost",
+    "host": "172.20.0.3",
     "port": "5432",
-    "user": "postgres",
+    "user": "dev_user",
     "pass": "dev_password",
     "name": "pos"
   },
-  "hostname": "0.0.0.0:9090"
+  "hostname": "0.0.0.0:9090",
+  "seed":"true"
 }

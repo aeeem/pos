@@ -9,5 +9,5 @@ type SaveOrUpdate struct {
 
 type GetTransactionsRequest struct {
 	helper.GetRequest
-	Status *string `json:"status" validate:"oneof=completed pending cancelleds"`
+	Status *string `json:"status" validate:"omitempty,oneof=completed pending cancelleds"`
 }

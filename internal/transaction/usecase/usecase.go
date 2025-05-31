@@ -1,10 +1,9 @@
 package usecase
 
 import (
+	"pos/internal/helper"
 	"pos/internal/model"
 	"pos/internal/transaction"
-
-	"gorm.io/gorm"
 )
 
 type transactionUsecase struct {
@@ -23,7 +22,7 @@ func (t *transactionUsecase) Savetransaction(transaction *model.Transaction) (er
 	return
 }
 func (t *transactionUsecase) GetTransactions(page, limit int64, search string, status model.Status) (transactions []model.Transaction, total int64, err error) {
-	transactions, total, err = t.transactionRepository.GetTransactions(page, limit, search, status)
+	transactions, total, err = t.transactionRepository.GetTransactions(helper.PageToOffset(page, limit), limit, search, status)
 	return
 }
 func (t *transactionUsecase) GetTransactionDetails(id int64) (transaction model.Transaction, err error) {
@@ -37,7 +36,7 @@ func (t *transactionUsecase) DeleteTransaction(id int64) (err error) {
 func (t *transactionUsecase) UpdateTransaction(transaction *model.Transaction) (err error) {
 	//check if transaction is exist
 	_, err = t.GetTransactionDetails(int64(transaction.ID))
-	if err != nil || err.Error() == gorm.ErrRecordNotFound.Error() {
+	if err != nil {
 		return
 	}
 

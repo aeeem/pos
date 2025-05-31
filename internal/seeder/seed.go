@@ -1,7 +1,6 @@
 package seeder
 
 import (
-	"log"
 	"math/rand"
 	"pos/internal/model"
 
@@ -30,7 +29,6 @@ func SeedItem(db *gorm.DB) {
 		items := []model.Item{}
 		db.Find(&items)
 		for _, item := range items {
-			log.Print(item)
 			Seedprice(db, int64(item.ID))
 		}
 	}

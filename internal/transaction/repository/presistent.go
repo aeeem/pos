@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 
 	"pos/internal/model"
@@ -19,18 +20,22 @@ func NewTransactionPresistentRepository(db *gorm.DB) transaction.TransactionRepo
 }
 
 func (t *transactionRepository) Savetransaction(transaction *model.Transaction) (err error) {
-	err = t.DB.Create(transaction).Error
+	err = t.DB.Create(&transaction).Error
 	if err != nil {
 		return
 	}
 	return
 }
 func (t *transactionRepository) GetTransactions(page, limit int64, search string, status model.Status) (transactions []model.Transaction, total int64, err error) {
-	total = 0
-	err = t.DB.Limit(int(limit)).Offset(int(page)).Preload("Cart").Find(&transactions).Count(&total).Error
+	total = int64(0)
+	err = t.DB.Model(&model.Transaction{}).Count(&total).Error
+	log.Print(limit)
+	log.Print(page)
+	err = t.DB.Limit(int(limit)).Offset(int(page)).Preload("Cart").Find(&transactions).Error
 	if err != nil {
 		return
 	}
+	log.Print(transactions)
 	return
 }
 
@@ -42,5 +47,6 @@ func (t *transactionRepository) Deletetransaction(id int64) (err error) {
 	return
 }
 func (t *transactionRepository) Updatetransaction(transaction *model.Transaction) (err error) {
+	err = t.DB.Save(&transaction).Error
 	return
 }

@@ -106,6 +106,7 @@ func (h *PriceHandler) SavePrice(c *fiber.Ctx) error {
 	Price := model.Price{
 		Price:  SaveItemRequest.Price,
 		Active: SaveItemRequest.Active,
+		Unit:   SaveItemRequest.Unit,
 		ItemID: uint(SaveItemRequest.ItemID),
 	}
 	err := h.PriceUsecase.SavePrice(&Price)

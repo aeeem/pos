@@ -8,5 +8,5 @@ type Price struct {
 	Price  int64  `json:"price"`
 	Active bool   `json:"active"`
 	ItemID uint   `json:"item_id"`
-	Item   Item   `json:"item"`
+	Item   *Item  `json:"item"`
 }

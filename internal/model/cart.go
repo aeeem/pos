@@ -9,6 +9,7 @@ type Cart struct {
 	TransactionID uint         `json:"transaction_id"`
 	Transaction   *Transaction `json:"transaction"`
 	ItemName      string       `json:"item_name"`
+	Unit          string       `json:"unit"`
 	Quantity      int          `json:"quantity"`
 	ItemPrice     int64        `json:"item_price"`
 	PriceID       uint         `json:"price_id"`

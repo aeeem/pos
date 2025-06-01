@@ -2,7 +2,6 @@ package http
 
 import (
 	"fmt"
-	"log"
 	itemHandler "pos/internal/item/delivery"
 	itemrepository "pos/internal/item/repository"
 	itemUsecase "pos/internal/item/usecase"
@@ -14,6 +13,7 @@ import (
 	transactionRepository "pos/internal/transaction/repository"
 	transactionUsecase "pos/internal/transaction/usecase"
 
+	CartHandler "pos/internal/cart/delivery"
 	cartRepository "pos/internal/cart/repository"
 	cartUsecase "pos/internal/cart/usecase"
 
@@ -25,6 +25,8 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/rs/zerolog/log"
+
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -50,8 +52,7 @@ func HttpRun(port string) {
 	}
 
 	//migration
-	db.AutoMigrate(&model.Item{}, &model.Price{}, &model.Transaction{}, &model.Cart{})
-
+	db.AutoMigrate(&model.Item{}, &model.Price{}, &model.Transaction{}, &model.Cart{}, &model.Customer{})
 	app := fiber.New()
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
@@ -69,11 +70,14 @@ func HttpRun(port string) {
 	transactionHandler.NewTransactionHandler(transactionUsecase, app, myValidator)
 
 	cartRepository := cartRepository.NewcartPresistentRepository(db)
-	cartUsecase := cartUsecase.NewCartUsecase(cartRepository)
+	cartUsecase := cartUsecase.NewCartUsecase(cartRepository, itemRepo, priceRepo)
+	CartHandler.NewCartHandler(app, myValidator, cartUsecase)
 
 	if viper.GetString("seed") == "true" {
 		seeder.SeedItem(db)
-		seeder.TransactionSeeder(transactionUsecase, itemUC, cartUsecase)
+		log.Info().Msg("item seeder")
+		seeder.TransactionSeeder(transactionUsecase, itemUC, cartUsecase, db)
+
 	}
-	log.Println(app.Listen(port))
+	log.Print(app.Listen(port))
 }

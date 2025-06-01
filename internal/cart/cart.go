@@ -3,11 +3,15 @@ package cart
 import "pos/internal/model"
 
 type CartRepository interface {
-	GetCartByTransactionID(transactionID uint) (carts []model.Cart, err error) //[]model.Cart, error
-	Savetransaction(transaction *model.Cart) (err error)
+	UpdateCart(transaction *model.Cart) (err error)
+	GetCartByTransactionID(offset, limit int64, transactionID uint) (carts []model.Cart, total int64, err error)
+	DeleteCart(transactionID uint) (err error)
+	SaveCart(transaction *model.Cart) (err error)
 }
 
 type CartUsecase interface {
-	Savetransaction(transaction *model.Cart) (err error)
-	GetCartByTransactionID(transactionID uint) (carts []model.Cart, err error) //[]model.Cart, error
+	UpdateCart(transaction *model.Cart) (err error)
+	SaveCart(transaction *model.Cart) (err error)
+	DeleteCart(transactionID uint) (err error)
+	GetCartByTransactionID(page, limit int64, transactionID uint) (carts []model.Cart, total int64, err error) //[]model.Cart, error
 }

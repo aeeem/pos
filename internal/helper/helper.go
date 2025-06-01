@@ -7,3 +7,9 @@ type GetRequest struct {
 }
 
 func PageToOffset(page, limit int64) int64 { return (page - 1) * limit } // PageToOffset
+
+type ListResponse struct {
+	Total int64 `json:"total"`
+	Page  int64 `json:"page"`
+	Limit int64 `json:"limit"`
+}

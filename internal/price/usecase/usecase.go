@@ -26,11 +26,12 @@ func (m *priceUsecase) SavePrice(price *model.Price) (err error) {
 // GetPrices gets a list of prices with pagination and search.
 // It returns a slice of Price, total count of the search result, and error.
 // The search parameter is used to search prices with their name or description.
-func (m *priceUsecase) GetPrices(page, limit int64, search string) (prices []model.Price, total int64, err error) {
-	prices, total, err = m.priceRepository.GetPrices(helper.PageToOffset(page, limit), limit, search)
+func (m *priceUsecase) GetPrices(page, limit int64, search string, itemID int64) (prices []model.Price, total int64, err error) {
+	prices, total, err = m.priceRepository.GetPrices(helper.PageToOffset(page, limit), limit, search, itemID)
 	return
 }
 func (m *priceUsecase) GetPriceDetails(id int64) (price model.Price, err error) {
+	price, err = m.priceRepository.GetPriceDetails(id)
 	return
 }
 func (m *priceUsecase) DeletePrice(id int64) (err error) {

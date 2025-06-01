@@ -23,9 +23,9 @@ func (m pricePresistentRepository) SavePrice(price *model.Price) (err error) {
 	return
 }
 
-func (m pricePresistentRepository) GetPrices(offset, limit int64, search string) (prices []model.Price, total int64, err error) {
+func (m pricePresistentRepository) GetPrices(offset, limit int64, search string, itemID int64) (prices []model.Price, total int64, err error) {
 	total = 0
-	err = m.DB.Limit(int(limit)).Offset(int(offset)).Find(&prices).Count(&total).Error
+	err = m.DB.Limit(int(limit)).Offset(int(offset)).Where("item_id = ?", itemID).Find(&prices).Order("id desc").Count(&total).Error
 	if err != nil {
 		return
 	}

@@ -32,10 +32,13 @@ func NewPriceHandler(f *fiber.App, validator *validator.XValidator, priceUscase 
 
 func (h *PriceHandler) GetPrices(c *fiber.Ctx) error {
 
-	GetRequest := helper.GetRequest{
-		Page:   c.QueryInt("page"),
-		Limit:  c.QueryInt("limit"),
-		Search: c.Query("search"),
+	GetRequest := GetPriceRequest{
+		GetRequest: helper.GetRequest{
+			Page:   c.QueryInt("page"),
+			Limit:  c.QueryInt("limit"),
+			Search: c.Query("search"),
+		},
+		ItemID: int64(c.QueryInt("item_id")),
 	}
 	if errs := h.Validator.Validate(GetRequest); len(errs) > 0 && errs[0].Error {
 		errMsgs := make([]string, 0)
@@ -53,7 +56,7 @@ func (h *PriceHandler) GetPrices(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		}
 	}
-	prices, total, err := h.PriceUsecase.GetPrices(int64(GetRequest.Page), int64(GetRequest.Limit), GetRequest.Search)
+	prices, total, err := h.PriceUsecase.GetPrices(int64(GetRequest.Page), int64(GetRequest.Limit), GetRequest.Search, GetRequest.ItemID)
 	if err != nil {
 		herr := http_error.CheckError(err)
 		return c.JSON(fiber.Error{

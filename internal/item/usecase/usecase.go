@@ -27,6 +27,7 @@ func (m *itemUsecase) GetItems(page, limit int64, search string) (items []model.
 }
 
 func (m *itemUsecase) GetItemDetails(id int64) (item model.Item, err error) {
+	item, err = m.itemRepository.GetItemDetails(id)
 	return
 }
 

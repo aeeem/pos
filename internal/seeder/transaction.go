@@ -8,34 +8,40 @@ import (
 
 	"pos/internal/transaction"
 
-	"github.com/bxcodec/faker/v4"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm"
 )
 
-func TransactionSeeder(transaction transaction.TransactionUsecase, item item.ItemUsecase, cart cart.CartUsecase) {
+func TransactionSeeder(transaction transaction.TransactionUsecase, item item.ItemUsecase, cart cart.CartUsecase, db *gorm.DB) {
+	customer := CustomerName(db)
+
 	NewTrx := model.Transaction{
-		CustomerName: faker.Name(),
+		CustomerID:   customer.ID,
+		CustomerName: customer.CustomerName,
 		Status:       "pending",
 	}
 	//check if transaction is not empty
 
 	trx, count, _ := transaction.GetTransactions(0, 10, "", "pending")
-	log.Print(count)
 	if count > 0 {
 		log.Print(trx)
 
 		//check if cart is not empty
+		if len(trx[0].Cart) <= 0 {
+			SeedCart(item, cart, trx[0])
+			return
+		}
+
 		for _, tx := range trx {
 			log.Print(count)
 
 			b, _ := json.Marshal(tx.Cart)
 			log.Info().Bytes("cart", b)
-			tx.CartJson = &b
+			tx.CartJson.Scan(b)
 			err := transaction.UpdateTransaction(&tx)
 			if err != nil {
 				panic(err)
 			}
-
 		}
 		//get all trx again
 		trx, _, _ := transaction.GetTransactions(0, 10, "", "pending")
@@ -50,17 +56,27 @@ func TransactionSeeder(transaction transaction.TransactionUsecase, item item.Ite
 	//
 	//create cart based on transactionID
 	//get item from item usecase
-	items, _, _ := item.GetItems(1, 10, "")
 
+	SeedCart(item, cart, NewTrx)
+
+}
+
+func SeedCart(item item.ItemUsecase, cart cart.CartUsecase, NewTrx model.Transaction) {
+	items, _, _ := item.GetItems(1, 10, "")
+	log.Info().Any("items", items).Msg("Items ")
 	for _, itemR := range items {
 
-		cart.Savetransaction(&model.Cart{
+		quantity := randRange(1, 10)
+		index := uint(randRange(0, len(itemR.Price)))
+		cart.SaveCart(&model.Cart{
 			TransactionID: NewTrx.ID,
 			ItemID:        itemR.ID,
-			Quantity:      1,
+			Quantity:      quantity,
 			ItemName:      itemR.ItemName,
-			PriceID:       itemR.Price[uint(randRange(1, len(itemR.Price)))].ID,
+			PriceID:       itemR.Price[index].ID,
+			ItemPrice:     itemR.Price[index].Price,
+			SubPrice:      itemR.Price[index].Price * int64(quantity),
+			Unit:          itemR.Price[index].Unit,
 		})
 	}
-
 }

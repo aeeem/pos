@@ -31,14 +31,14 @@ func NewTransactionHandler(transactionUsecase transaction.TransactionUsecase, f 
 }
 
 func (t TransactionHandler) GetTransactions(c *fiber.Ctx) error {
-	status := c.Query("status")
 	GetRequest := GetTransactionsRequest{
 		GetRequest: helper.GetRequest{
 			Page:   c.QueryInt("page"),
 			Limit:  c.QueryInt("limit"),
 			Search: c.Query("search"),
 		},
-		Status: &status,
+		Status:     c.Query("status"),
+		CustomerID: c.QueryInt("customer_id"),
 	}
 	if errs := t.Validator.Validate(GetRequest); len(errs) > 0 && errs[0].Error {
 		errMsgs := make([]string, 0)
@@ -56,7 +56,7 @@ func (t TransactionHandler) GetTransactions(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		}
 	}
-	transactions, total, err := t.TransactionUsecase.GetTransactions(int64(GetRequest.Page), int64(GetRequest.Limit), GetRequest.Search, model.Status(status))
+	transactions, total, err := t.TransactionUsecase.GetTransactions(int64(GetRequest.Page), int64(GetRequest.Limit), GetRequest.Search, model.Status(GetRequest.Status), int64(GetRequest.CustomerID))
 	if err != nil {
 		herr := http_error.CheckError(err)
 		return c.JSON(fiber.Error{

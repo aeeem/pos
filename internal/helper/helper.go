@@ -13,3 +13,8 @@ type ListResponse struct {
 	Page  int64 `json:"page"`
 	Limit int64 `json:"limit"`
 }
+
+type StandardResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}

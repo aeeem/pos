@@ -8,9 +8,9 @@ import (
 type Status string
 
 const (
-	Active   Status = "completed"
-	Inactive Status = "cancelled"
-	Pending  Status = "pending"
+	Completed Status = "completed"
+	Cancelled Status = "cancelled"
+	Pending   Status = "pending"
 )
 
 type Transaction struct {

@@ -22,7 +22,7 @@ func TransactionSeeder(transaction transaction.TransactionUsecase, item item.Ite
 	}
 	//check if transaction is not empty
 
-	trx, count, _ := transaction.GetTransactions(0, 10, "", "pending")
+	trx, count, _ := transaction.GetTransactions(0, 10, "", "pending", 1)
 	if count > 0 {
 		log.Print(trx)
 
@@ -44,7 +44,7 @@ func TransactionSeeder(transaction transaction.TransactionUsecase, item item.Ite
 			}
 		}
 		//get all trx again
-		trx, _, _ := transaction.GetTransactions(0, 10, "", "pending")
+		trx, _, _ := transaction.GetTransactions(0, 10, "", "pending", 1)
 		log.Info().Interface("trx", trx)
 		return
 	}

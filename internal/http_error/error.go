@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -15,8 +14,7 @@ type HttpErrorCode struct {
 }
 
 func CheckError(err error) (httpErr HttpErrorCode) {
-	log.Info(err)
-	log.Info()
+
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		switch pgErr.Code {

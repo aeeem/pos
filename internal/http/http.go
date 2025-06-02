@@ -13,6 +13,10 @@ import (
 	transactionRepository "pos/internal/transaction/repository"
 	transactionUsecase "pos/internal/transaction/usecase"
 
+	customerHandler "pos/internal/customer/delivery"
+	customerRepository "pos/internal/customer/repository"
+	customerUsecase "pos/internal/customer/usecase"
+
 	CartHandler "pos/internal/cart/delivery"
 	cartRepository "pos/internal/cart/repository"
 	cartUsecase "pos/internal/cart/usecase"
@@ -68,6 +72,10 @@ func HttpRun(port string) {
 	transactionRepo := transactionRepository.NewTransactionPresistentRepository(db)
 	transactionUsecase := transactionUsecase.NewTransactionUsecase(transactionRepo)
 	transactionHandler.NewTransactionHandler(transactionUsecase, app, myValidator)
+
+	customerRepo := customerRepository.NewCustomerPresistentRepository(db)
+	customerUsecase := customerUsecase.NewCustomerUsecase(customerRepo)
+	customerHandler.NewCustomerHandler(app, customerUsecase, myValidator)
 
 	cartRepository := cartRepository.NewcartPresistentRepository(db)
 	cartUsecase := cartUsecase.NewCartUsecase(cartRepository, itemRepo, priceRepo)

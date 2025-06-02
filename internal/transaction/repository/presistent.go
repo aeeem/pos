@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 
 	"pos/internal/model"
@@ -26,16 +25,13 @@ func (t *transactionRepository) Savetransaction(transaction *model.Transaction) 
 	}
 	return
 }
-func (t *transactionRepository) GetTransactions(page, limit int64, search string, status model.Status) (transactions []model.Transaction, total int64, err error) {
+func (t *transactionRepository) GetTransactions(page, limit int64, search string, status model.Status, customerID int64) (transactions []model.Transaction, total int64, err error) {
 	total = int64(0)
 	err = t.DB.Model(&model.Transaction{}).Count(&total).Error
-	log.Print(limit)
-	log.Print(page)
-	err = t.DB.Limit(int(limit)).Offset(int(page)).Preload("Cart").Find(&transactions).Error
+	err = t.DB.Limit(int(limit)).Offset(int(page)).Preload("Cart").Where("customer_id = ?", customerID).Find(&transactions).Error
 	if err != nil {
 		return
 	}
-	log.Print(transactions)
 	return
 }
 

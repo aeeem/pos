@@ -21,8 +21,8 @@ func (t *transactionUsecase) Savetransaction(transaction *model.Transaction) (er
 
 	return
 }
-func (t *transactionUsecase) GetTransactions(page, limit int64, search string, status model.Status) (transactions []model.Transaction, total int64, err error) {
-	transactions, total, err = t.transactionRepository.GetTransactions(helper.PageToOffset(page, limit), limit, search, status)
+func (t *transactionUsecase) GetTransactions(page, limit int64, search string, status model.Status, customerID int64) (transactions []model.Transaction, total int64, err error) {
+	transactions, total, err = t.transactionRepository.GetTransactions(helper.PageToOffset(page, limit), limit, search, status, customerID)
 	return
 }
 func (t *transactionUsecase) GetTransactionDetails(id int64) (transaction model.Transaction, err error) {

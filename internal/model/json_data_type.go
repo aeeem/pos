@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
@@ -70,7 +69,6 @@ func (JSONMap) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 	case "mysql":
 		return "JSON"
 	case "postgres":
-		log.Info().Msg("postgres")
 		return "JSONB"
 	}
 	return ""

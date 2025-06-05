@@ -37,7 +37,7 @@ func (c cartPresistentRepository) GetCartByTransactionID(offset, limit int64, tr
 	if err != nil {
 		return
 	}
-	err = c.DB.Select("cart.*").Where("transaction_id = ?", transactionID).Joins("Price").Offset(int(offset)).Limit(int(limit)).Order("id desc").Find(&carts).Error
+	err = c.DB.Where("transaction_id = ?", transactionID).Offset(int(offset)).Limit(int(limit)).Order("id desc").Find(&carts).Error
 	if err != nil {
 		return
 	}

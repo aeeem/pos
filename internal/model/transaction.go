@@ -16,7 +16,7 @@ const (
 type Transaction struct {
 	gorm.Model
 	CustomerID            uint           `json:"customer_id" gorm:"index:idx_customer_id"`
-	CustomerTransactionNo uint           `json:"customer_transaction_no"`
+	CustomerTransactionNo uint           `json:"customer_transaction_no" gorm:"default:0"`
 	CustomerName          string         `json:"customer_name" gorm:"index:idx_customer_name"`
 	Status                Status         `gorm:"type:status" json:"status" gorm:"default:draft"`
 	TotalPrice            float64        `json:"total_price" gorm:"default:0"`

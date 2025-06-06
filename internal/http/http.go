@@ -61,8 +61,10 @@ func HttpRun(port string) {
 	db.AutoMigrate(&model.Item{}, &model.Price{}, &model.Transaction{}, &model.Cart{}, &model.Customer{})
 	//creating trigger function after migrations
 	helper.CheckCustomer(db)
+	helper.CheckCustomerCountAfterUpdate(db)
 	helper.UpdateTotalPrice(db)
 	//creating table trigger after migrations
+	helper.UpdateTransactionTrigger(db)
 	helper.CartTrigger(db)
 	helper.TransactionTrigger(db)
 

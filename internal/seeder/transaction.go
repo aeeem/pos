@@ -16,9 +16,10 @@ func TransactionSeeder(transaction transaction.TransactionUsecase, item item.Ite
 	customer := CustomerName(db)
 
 	NewTrx := model.Transaction{
-		CustomerID:   customer.ID,
-		CustomerName: customer.CustomerName,
-		Status:       "pending",
+		CustomerID:            customer.ID,
+		CustomerName:          customer.CustomerName,
+		CustomerTransactionNo: 0,
+		Status:                "pending",
 	}
 	//check if transaction is not empty
 

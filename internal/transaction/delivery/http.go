@@ -105,6 +105,10 @@ func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 	Transaction := model.Transaction{
 		CustomerName: SaveItemRequest.CustomerName,
 	}
+	if SaveItemRequest.CustomerID != 0 {
+		Transaction.CustomerID = uint(SaveItemRequest.CustomerID)
+
+	}
 	if SaveItemRequest.Status != nil {
 		Transaction.Status = model.Status(*SaveItemRequest.Status)
 	}

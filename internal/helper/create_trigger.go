@@ -1,6 +1,10 @@
 package helper
 
-import "gorm.io/gorm"
+import (
+	"log"
+
+	"gorm.io/gorm"
+)
 
 func TransactionTrigger(db *gorm.DB) {
 	err := db.Exec(`
@@ -69,5 +73,13 @@ END;
 $BODY$;`).Error
 	if err != nil {
 		panic(err)
+	}
+}
+
+func CreateStatusEnum(db *gorm.DB) {
+	err := db.Exec(`DROP TYPE IF EXISTS status;
+CREATE TYPE status AS ENUM ('pending', 'completed', 'canceled','draft');`).Error
+	if err != nil {
+		log.Print(err)
 	}
 }

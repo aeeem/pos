@@ -55,7 +55,8 @@ func HttpRun(port string) {
 	if err != nil {
 		panic(err)
 	}
-
+	//create enum
+	helper.CreateStatusEnum(db)
 	//migration
 	db.AutoMigrate(&model.Item{}, &model.Price{}, &model.Transaction{}, &model.Cart{}, &model.Customer{})
 	//creating trigger function after migrations

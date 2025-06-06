@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+	"pos/internal/helper"
 	itemHandler "pos/internal/item/delivery"
 	itemrepository "pos/internal/item/repository"
 	itemUsecase "pos/internal/item/usecase"
@@ -57,6 +58,13 @@ func HttpRun(port string) {
 
 	//migration
 	db.AutoMigrate(&model.Item{}, &model.Price{}, &model.Transaction{}, &model.Cart{}, &model.Customer{})
+	//creating trigger function after migrations
+	helper.CheckCustomer(db)
+	helper.UpdateTotalPrice(db)
+	//creating table trigger after migrations
+	helper.CartTrigger(db)
+	helper.TransactionTrigger(db)
+
 	app := fiber.New()
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")

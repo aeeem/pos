@@ -64,7 +64,7 @@ DECLARE cnt INTEGER;
 BEGIN
   SELECT COUNT(*) INTO cnt
   FROM transactions
-  WHERE customer_id = NEW.customer_id and (transaction.status='pending' or transaction.status='draft');
+  WHERE customer_id = NEW.customer_id and (transactions.status='pending' or transactions.status='draft');
 
   NEW.customer_transaction_no = cnt + 1;
 

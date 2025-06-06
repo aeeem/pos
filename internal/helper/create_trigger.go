@@ -10,7 +10,7 @@ func TransactionTrigger(db *gorm.DB) {
 	err := db.Exec(`
 	DROP TRIGGER IF EXISTS CheckCustomerTransactionNo on transactions;
 	CREATE TRIGGER CheckCustomerTransactionNo
-   BEFORE  insert
+   BEFORE  insert or update
    ON transactions
    FOR EACH ROW 
        EXECUTE PROCEDURE checkcustomer();`).Error
@@ -64,7 +64,7 @@ DECLARE cnt INTEGER;
 BEGIN
   SELECT COUNT(*) INTO cnt
   FROM transactions
-  WHERE customer_id = NEW.customer_id;
+  WHERE customer_id = NEW.customer_id and (transaction.status='pending' or transaction.status='draft');
 
   NEW.customer_transaction_no = cnt + 1;
 

@@ -28,7 +28,7 @@ func (r customerPresistentRepository) GetAllCustomer(offset, limit int64, search
 	if err != nil {
 		return
 	}
-	err = r.db.Limit(int(limit)).Offset(int(offset)).Where("customer_name LIKE ?", "%"+search+"%").Find(&customers).Error
+	err = r.db.Limit(int(limit)).Offset(int(offset)).Where("customer_name LIKE ?", "%"+search+"%").Order("created_at desc").Find(&customers).Error
 	if err != nil {
 		return
 	}

@@ -80,17 +80,17 @@ func HttpRun(port string) {
 	priceUC := priceUsecase.NewPriceUsecase(priceRepo)
 	priceHandler.NewPriceHandler(app, myValidator, priceUC)
 
+	cartRepository := cartRepository.NewcartPresistentRepository(db)
+	cartUsecase := cartUsecase.NewCartUsecase(cartRepository, itemRepo, priceRepo)
+	CartHandler.NewCartHandler(app, myValidator, cartUsecase)
+
 	transactionRepo := transactionRepository.NewTransactionPresistentRepository(db)
-	transactionUsecase := transactionUsecase.NewTransactionUsecase(transactionRepo)
+	transactionUsecase := transactionUsecase.NewTransactionUsecase(transactionRepo, cartUsecase, itemUC, priceUC)
 	transactionHandler.NewTransactionHandler(transactionUsecase, app, myValidator)
 
 	customerRepo := customerRepository.NewCustomerPresistentRepository(db)
 	customerUsecase := customerUsecase.NewCustomerUsecase(customerRepo)
 	customerHandler.NewCustomerHandler(app, customerUsecase, myValidator)
-
-	cartRepository := cartRepository.NewcartPresistentRepository(db)
-	cartUsecase := cartUsecase.NewCartUsecase(cartRepository, itemRepo, priceRepo)
-	CartHandler.NewCartHandler(app, myValidator, cartUsecase)
 
 	if viper.GetString("seed") == "true" {
 		seeder.SeedItem(db)

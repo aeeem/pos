@@ -26,6 +26,7 @@ func NewTransactionHandler(transactionUsecase transaction.TransactionUsecase, f 
 	f.Get("/transaction", TransactionHandler.GetTransactions)
 	f.Get("/transaction/:id", TransactionHandler.GetTransactionDetails)
 	f.Post("/transaction", TransactionHandler.Savetransaction)
+
 	f.Put("/transaction", TransactionHandler.Updatetransaction)
 	f.Delete("/transaction/:id", TransactionHandler.Deletetransaction)
 }
@@ -112,6 +113,18 @@ func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 	if SaveItemRequest.Status != nil {
 		Transaction.Status = model.Status(*SaveItemRequest.Status)
 	}
+
+	if len(SaveItemRequest.Cart) > 0 {
+		for _, v := range SaveItemRequest.Cart {
+			Transaction.Cart = append(Transaction.Cart, model.Cart{
+				TransactionID: uint(v.TransactionID),
+				ItemID:        uint(v.ItemID),
+				Quantity:      v.Quantity,
+				PriceID:       uint(v.PriceID),
+				SubPrice:      0,
+			})
+		}
+	}
 	err := t.TransactionUsecase.Savetransaction(&Transaction)
 	if err != nil {
 		return &fiber.Error{
@@ -121,6 +134,7 @@ func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 	}
 	return c.JSON(Transaction)
 }
+
 func (t TransactionHandler) Updatetransaction(c *fiber.Ctx) error {
 	return nil
 }

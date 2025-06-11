@@ -1,11 +1,15 @@
 package delivery
 
-import "pos/internal/helper"
+import (
+	"pos/internal/cart/delivery"
+	"pos/internal/helper"
+)
 
 type SaveOrUpdate struct {
-	CustomerID   int     `json:"customer_id" validate:"omitempty,numeric"`
-	CustomerName string  `json:"customer_name" validate:"required"`
-	Status       *string `json:"status" validate:"oneof=completed cancelled pending "`
+	CustomerID   int                     `json:"customer_id" validate:"omitempty,numeric"`
+	CustomerName string                  `json:"customer_name" validate:"required"`
+	Status       *string                 `json:"status" validate:"oneof=completed cancelled pending "`
+	Cart         []delivery.SaveOrUpdate `json:"cart" validate:"omitempty,dive"`
 }
 
 type GetTransactionsRequest struct {

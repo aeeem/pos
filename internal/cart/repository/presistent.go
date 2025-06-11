@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"log"
 	"pos/internal/cart"
 	"pos/internal/model"
 
@@ -28,6 +29,7 @@ func (c cartPresistentRepository) UpdateCart(cart *model.Cart) (err error) {
 }
 
 func (c cartPresistentRepository) SaveCart(cart *model.Cart) (err error) {
+	log.Print(cart.ID)
 	err = c.DB.Create(cart).Error
 	return
 }

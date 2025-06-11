@@ -36,7 +36,7 @@ func CartTrigger(db *gorm.DB) {
 	DROP TRIGGER IF EXISTS UpdateTotalPrice on carts;
 
 	CREATE TRIGGER UpdateTotalPrice
-   BEFORE  insert OR update of sub_price
+   AFTER  insert OR update of sub_price
    ON carts
    FOR EACH ROW 
        EXECUTE PROCEDURE update_total_price();`).Error

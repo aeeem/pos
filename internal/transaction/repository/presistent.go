@@ -40,6 +40,7 @@ func (t *transactionRepository) GetTransactionDetails(id int64) (transaction mod
 	return
 }
 func (t *transactionRepository) Deletetransaction(id int64) (err error) {
+	err = t.DB.Delete(&model.Transaction{}, id).Error
 	return
 }
 func (t *transactionRepository) Updatetransaction(transaction *model.Transaction) (err error) {

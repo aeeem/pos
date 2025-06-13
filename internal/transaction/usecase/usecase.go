@@ -60,6 +60,11 @@ func (t *transactionUsecase) GetTransactionDetails(id int64) (transaction model.
 	return
 }
 func (t *transactionUsecase) DeleteTransaction(id int64) (err error) {
+
+	//check if transaction exist
+	if _, err = t.GetTransactionDetails(id); err != nil {
+		return
+	}
 	err = t.transactionRepository.Deletetransaction(id)
 	return
 }

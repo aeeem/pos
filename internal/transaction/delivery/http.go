@@ -8,9 +8,11 @@ import (
 	"pos/internal/model"
 	"pos/internal/transaction"
 	"pos/internal/validator"
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type TransactionHandler struct {
@@ -27,7 +29,7 @@ func NewTransactionHandler(transactionUsecase transaction.TransactionUsecase, f 
 	f.Get("/transaction/:id", TransactionHandler.GetTransactionDetails)
 	f.Post("/transaction", TransactionHandler.Savetransaction)
 
-	f.Put("/transaction", TransactionHandler.Updatetransaction)
+	f.Put("/transaction/:id", TransactionHandler.Updatetransaction)
 	f.Delete("/transaction/:id", TransactionHandler.Deletetransaction)
 }
 
@@ -52,15 +54,15 @@ func (t TransactionHandler) GetTransactions(c *fiber.Ctx) error {
 				err.Tag,
 			))
 		}
-		return &fiber.Error{
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
 			Code:    fiber.ErrBadRequest.Code,
 			Message: strings.Join(errMsgs, " and "),
-		}
+		})
 	}
 	transactions, total, err := t.TransactionUsecase.GetTransactions(int64(GetRequest.Page), int64(GetRequest.Limit), GetRequest.Search, model.Status(GetRequest.Status), int64(GetRequest.CustomerID))
 	if err != nil {
 		herr := http_error.CheckError(err)
-		return c.JSON(fiber.Error{
+		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Error{
 			Code:    herr.HTTPErrorCode,
 			Message: herr.Message,
 		})
@@ -76,15 +78,42 @@ func (t TransactionHandler) GetTransactions(c *fiber.Ctx) error {
 }
 
 func (t TransactionHandler) GetTransactionDetails(c *fiber.Ctx) error {
-	return nil
+	//get item id
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: "id should be a number",
+		})
+	}
+	if id == 0 {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: "id is required",
+		})
+	}
+
+	transaction, err := t.TransactionUsecase.GetTransactionDetails(int64(id))
+	if err != nil {
+		herr := http_error.CheckError(err)
+		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Error{
+			Code:    herr.HTTPErrorCode,
+			Message: herr.Message,
+		})
+	}
+	return c.JSON(helper.StandardResponse{
+		Status:  "success",
+		Message: "transaction details",
+		Data:    transaction,
+	})
 }
 func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 	SaveItemRequest := SaveOrUpdate{}
 	if err := json.Unmarshal(c.Body(), &SaveItemRequest); err != nil {
-		return &fiber.Error{
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
 			Code:    fiber.ErrBadRequest.Code,
 			Message: err.Error(),
-		}
+		})
 	}
 
 	if errs := t.Validator.Validate(SaveItemRequest); len(errs) > 0 && errs[0].Error {
@@ -98,10 +127,10 @@ func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 				err.Tag,
 			))
 		}
-		return &fiber.Error{
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
 			Code:    fiber.ErrBadRequest.Code,
 			Message: strings.Join(errMsgs, " and "),
-		}
+		})
 	}
 	Transaction := model.Transaction{
 		CustomerName: SaveItemRequest.CustomerName,
@@ -127,17 +156,94 @@ func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 	}
 	err := t.TransactionUsecase.Savetransaction(&Transaction)
 	if err != nil {
-		return &fiber.Error{
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
 			Code:    fiber.ErrBadRequest.Code,
 			Message: err.Error(),
-		}
+		})
 	}
 	return c.JSON(Transaction)
 }
 
 func (t TransactionHandler) Updatetransaction(c *fiber.Ctx) error {
-	return nil
+	id, _ := strconv.Atoi(c.Params("id"))
+	SaveItemRequest := SaveOrUpdate{}
+	if err := json.Unmarshal(c.Body(), &SaveItemRequest); err != nil {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: err.Error(),
+		})
+	}
+
+	if errs := t.Validator.Validate(SaveItemRequest); len(errs) > 0 && errs[0].Error {
+		errMsgs := make([]string, 0)
+
+		for _, err := range errs {
+			errMsgs = append(errMsgs, fmt.Sprintf(
+				"[%s]: '%v' | Needs to implement '%s'",
+				err.FailedField,
+				err.Value,
+				err.Tag,
+			))
+		}
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: strings.Join(errMsgs, " and "),
+		})
+	}
+	Transaction := model.Transaction{
+		Model: gorm.Model{
+			ID: uint(id),
+		},
+		CustomerName: SaveItemRequest.CustomerName,
+	}
+	if SaveItemRequest.CustomerID != 0 {
+		Transaction.CustomerID = uint(SaveItemRequest.CustomerID)
+
+	}
+	if SaveItemRequest.Status != nil {
+		Transaction.Status = model.Status(*SaveItemRequest.Status)
+	}
+
+	err := t.TransactionUsecase.UpdateTransaction(&Transaction)
+	if err != nil {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(helper.StandardResponse{
+		Status:  "success",
+		Message: "transaction Updated successfully",
+		Data:    Transaction,
+	})
 }
 func (t TransactionHandler) Deletetransaction(c *fiber.Ctx) error {
-	return nil
+	//get item id
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: "id should be a number",
+		})
+	}
+	if id == 0 {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: "id is required",
+		})
+	}
+	err = t.TransactionUsecase.DeleteTransaction(int64(id))
+	if err != nil {
+		herr := http_error.CheckError(err)
+		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Error{
+			Code:    herr.HTTPErrorCode,
+			Message: herr.Message,
+		})
+	}
+	return c.JSON(helper.StandardResponse{
+		Status:  "success",
+		Message: "transaction deleted successfully",
+		Data:    nil,
+	})
 }

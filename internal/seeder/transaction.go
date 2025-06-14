@@ -72,11 +72,11 @@ func SeedCart(item item.ItemUsecase, cart cart.CartUsecase, NewTrx model.Transac
 		cart.SaveCart(&model.Cart{
 			TransactionID: NewTrx.ID,
 			ItemID:        itemR.ID,
-			Quantity:      quantity,
+			Quantity:      float64(quantity),
 			ItemName:      itemR.ItemName,
 			PriceID:       itemR.Price[index].ID,
 			ItemPrice:     itemR.Price[index].Price,
-			SubPrice:      itemR.Price[index].Price * int64(quantity),
+			SubPrice:      float64(itemR.Price[index].Price * float64(quantity)),
 			Unit:          itemR.Price[index].Unit,
 		})
 	}

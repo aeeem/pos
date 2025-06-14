@@ -52,7 +52,7 @@ func UpdateTotalPrice(db *gorm.DB) {
     VOLATILE
     COST 100
 AS $BODY$
-declare total_price_cart int;
+declare total_price_cart decimal;
 BEGIN
 	select sum(carts.sub_price) from carts where transaction_id=NEW.transaction_id AND deleted_at is null into total_price_cart;
 	RAISE NOTICE '% ' ,total_price_cart;

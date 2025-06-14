@@ -8,9 +8,9 @@ type GetCartByTransactionIDRequest struct {
 }
 
 type SaveOrUpdate struct {
-	ID            int64 `json:"id" validate:"-"`
-	ItemID        uint  `json:"item_id"`
-	TransactionID uint  `json:"transaction_id"`
-	Quantity      int   `json:"quantity"`
-	PriceID       uint  `json:"price_id"`
+	ID            int64   `json:"id" validate:"-"`
+	ItemID        uint    `json:"item_id"`
+	TransactionID uint    `json:"transaction_id"`
+	Quantity      float64 `json:"quantity"`
+	PriceID       uint    `json:"price_id"`
 }

@@ -46,7 +46,7 @@ func (c cartUsecase) SaveCart(cart *model.Cart) (err error) {
 	}
 
 	cart.ItemName = items.ItemName
-	cart.SubPrice = prices.Price * int64(cart.Quantity)
+	cart.SubPrice = prices.Price * cart.Quantity
 	cart.Unit = prices.Unit
 	cart.ItemPrice = prices.Price
 	err = c.CartRepository.SaveCart(cart)

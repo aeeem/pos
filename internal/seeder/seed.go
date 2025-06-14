@@ -53,7 +53,7 @@ func Seedprice(db *gorm.DB, itemID int64) {
 		for i := 0; i < 2; i++ {
 			unit := randArrStr(units)
 			PriceModels := model.Price{
-				Price:  int64(randRange(1000, 10000)),
+				Price:  float64(randRange(1000, 10000)),
 				ItemID: uint(itemID),
 				Active: true,
 				Unit:   reflect.ValueOf(unit).String(),

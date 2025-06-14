@@ -10,9 +10,9 @@ type Cart struct {
 	Transaction   *Transaction `json:"transaction" gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	ItemName      string       `json:"item_name"`
 	Unit          string       `json:"unit"`
-	Quantity      int          `json:"quantity"`
-	ItemPrice     int64        `json:"item_price"`
+	Quantity      float64      `json:"quantity"`
+	ItemPrice     float64      `json:"item_price"`
 	PriceID       uint         `json:"price_id"`
 	Price         Price        `json:"price" gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
-	SubPrice      int64        `json:"sub_price"`
+	SubPrice      float64      `json:"sub_price"`
 }

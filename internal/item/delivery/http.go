@@ -146,29 +146,28 @@ func (h *ItemHandler) SaveItem(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		}
 	}
-
-	//upload image
-	file, err := c.FormFile("image")
-	if err != nil {
-		return c.JSON(fiber.Map{"status": 500, "message": "Server error", "data": err.Error()})
-	}
-	filename := fmt.Sprintf("%s-%s", uuid.New().String(), SaveItemRequest.ItemName)
-	fileExt := strings.Split(file.Filename, ".")[1]
-	filename = fmt.Sprintf("%s.%s", filename, fileExt)
-	err = c.SaveFile(file, fmt.Sprintf("./images/%s", filename))
-	if err != nil {
-		return c.JSON(fiber.Map{"status": 500, "message": "Server error", "data": err.Error()})
-	}
-
-	imageUrl := fmt.Sprintf("http://47.236.241.247/images/%s", filename)
-
 	Items := model.Item{
 		ItemName:     SaveItemRequest.ItemName,
 		MaxPriceItem: SaveItemRequest.MaxPrice,
 	}
-	if file != nil {
+	//upload image
+	file, err := c.FormFile("image")
+	if err != nil {
+		log.Print(err)
+	} else {
+
+		filename := fmt.Sprintf("%s-%s", uuid.New().String(), SaveItemRequest.ItemName)
+		fileExt := strings.Split(file.Filename, ".")[1]
+		filename = fmt.Sprintf("%s.%s", filename, fileExt)
+		err = c.SaveFile(file, fmt.Sprintf("./images/%s", filename))
+		if err != nil {
+			return c.JSON(fiber.Map{"status": 500, "message": "Server error", "data": err.Error()})
+		}
+		imageUrl := fmt.Sprintf("http://47.236.241.247/images/%s", filename)
+
 		Items.ImageUrl = imageUrl
 	}
+
 	for _, v := range SaveItemRequest.Price {
 		Items.Price = append(Items.Price, model.Price{
 			Price:  v.Price,

@@ -4,20 +4,38 @@ import (
 	"pos/internal/helper"
 	"pos/internal/item"
 	"pos/internal/model"
+	"pos/internal/price"
 )
 
 type itemUsecase struct {
 	itemRepository item.ItemRepository
+	priceUsecase   price.PriceUsecase
 }
 
-func NewItemUsecase(itemRepository item.ItemRepository) item.ItemUsecase {
+func NewItemUsecase(itemRepository item.ItemRepository, priceUsecase price.PriceUsecase) item.ItemUsecase {
 	return &itemUsecase{
 		itemRepository: itemRepository,
+		priceUsecase:   priceUsecase,
 	}
 }
 
 func (m *itemUsecase) SaveItem(item *model.Item) (err error) {
+	prices := item.Price
+	item.Price = []model.Price{}
 	err = m.itemRepository.SaveItem(item)
+	if err != nil {
+		return
+	}
+	for _, v := range prices {
+		v.ItemID = item.ID
+		v.Active = true
+		err = m.priceUsecase.SavePrice(&v)
+		if err != nil {
+			return
+		}
+		item.Price = append(item.Price, v)
+	}
+
 	return
 }
 
@@ -36,5 +54,21 @@ func (m *itemUsecase) DeleteItem(id int64) (err error) {
 }
 
 func (m *itemUsecase) UpdateItem(item *model.Item) (err error) {
+	price := item.Price
+
+	item.Price = []model.Price{}
+
+	err = m.itemRepository.UpdateItem(item)
+
+	for _, v := range price {
+		v.ItemID = item.ID
+		v.Active = true
+		err = m.priceUsecase.SavePrice(&v)
+		if err != nil {
+			return
+		}
+		item.Price = append(item.Price, v)
+	}
+
 	return
 }

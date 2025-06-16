@@ -5,6 +5,8 @@ import (
 	"pos/internal/item"
 	"pos/internal/model"
 	"pos/internal/price"
+
+	"github.com/rs/zerolog/log"
 )
 
 type priceUsecase struct {
@@ -35,8 +37,11 @@ func (m *priceUsecase) GetPriceDetails(id int64) (price model.Price, err error) 
 	return
 }
 func (m *priceUsecase) DeletePrice(id int64) (err error) {
-	return
+
+	return m.priceRepository.DeletePrice(id)
 }
 func (m *priceUsecase) UpdatePrice(price *model.Price) (err error) {
+	log.Info().Any("price", price).Msg("price")
+	err = m.priceRepository.UpdatePrice(price)
 	return
 }

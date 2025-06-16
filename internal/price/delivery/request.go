@@ -3,6 +3,7 @@ package delivery
 import "pos/internal/helper"
 
 type SaveOrUpdate struct {
+	ID     uint    `json:"id" validate:"-"`
 	Price  float64 `json:"price" validate:"required"`
 	Unit   string  `json:"unit" validate:"required"`
 	Active bool    `json:"active" validate:"required"`

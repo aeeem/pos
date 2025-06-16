@@ -8,9 +8,11 @@ import (
 	"pos/internal/model"
 	"pos/internal/price"
 	"pos/internal/validator"
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type PriceHandler struct {
@@ -26,7 +28,7 @@ func NewPriceHandler(f *fiber.App, validator *validator.XValidator, priceUscase 
 	f.Get("/price", PriceHandler.GetPrices)
 	f.Get("/price/:id", PriceHandler.GetPriceDetails)
 	f.Post("/price", PriceHandler.SavePrice)
-	f.Put("/price", PriceHandler.UpdatePrice)
+	f.Put("/price/:id", PriceHandler.UpdatePrice)
 	f.Delete("/price/:id", PriceHandler.DeletePrice)
 }
 
@@ -126,9 +128,82 @@ func (h *PriceHandler) SavePrice(c *fiber.Ctx) error {
 }
 
 func (h *PriceHandler) UpdatePrice(c *fiber.Ctx) error {
-	return nil
+	id, _ := strconv.Atoi(c.Params("id"))
+	SaveItemRequest := SaveOrUpdate{}
+	if err := json.Unmarshal(c.Body(), &SaveItemRequest); err != nil {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: err.Error(),
+		})
+	}
+
+	if errs := h.Validator.Validate(SaveItemRequest); len(errs) > 0 && errs[0].Error {
+		errMsgs := make([]string, 0)
+
+		for _, err := range errs {
+			errMsgs = append(errMsgs, fmt.Sprintf(
+				"[%s]: '%v' | Needs to implement '%s'",
+				err.FailedField,
+				err.Value,
+				err.Tag,
+			))
+		}
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: strings.Join(errMsgs, " and "),
+		})
+	}
+	Price := model.Price{
+		Model: gorm.Model{
+			ID: uint(id),
+		},
+		Price: SaveItemRequest.Price,
+	}
+	if SaveItemRequest.ItemID != 0 {
+		Price.ItemID = uint(SaveItemRequest.ItemID)
+
+	}
+
+	err := h.PriceUsecase.UpdatePrice(&Price)
+	if err != nil {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(helper.StandardResponse{
+		Status:  "success",
+		Message: "price updated successfully",
+		Data:    Price,
+	})
 }
 
 func (h *PriceHandler) DeletePrice(c *fiber.Ctx) error {
-	return nil
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: "id should be a number",
+		})
+	}
+	if id == 0 {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: "id is required",
+		})
+	}
+	err = h.PriceUsecase.DeletePrice(int64(id))
+	if err != nil {
+		herr := http_error.CheckError(err)
+		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Error{
+			Code:    herr.HTTPErrorCode,
+			Message: herr.Message,
+		})
+	}
+	return c.JSON(helper.StandardResponse{
+		Status:  "success",
+		Message: "price deleted successfully",
+		Data:    nil,
+	})
 }

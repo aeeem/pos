@@ -4,6 +4,7 @@ import (
 	"pos/internal/model"
 	"pos/internal/price"
 
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
@@ -43,6 +44,7 @@ func (m pricePresistentRepository) DeletePrice(id int64) (err error) {
 }
 
 func (m pricePresistentRepository) UpdatePrice(price *model.Price) (err error) {
-	err = m.DB.Save(price).Error
+	err = m.DB.Save(price).Where("id = ?", price.ID).Error
+	log.Print(err)
 	return
 }

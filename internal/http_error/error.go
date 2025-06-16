@@ -23,6 +23,10 @@ func CheckError(err error) (httpErr HttpErrorCode) {
 			httpErr.Message = fmt.Sprintf("Item with name %s already exists", pgErr.ConstraintName)
 			return
 		}
+	} else {
+		httpErr.HTTPErrorCode = 500
+		httpErr.Message = err.Error()
+		return
 	}
 	return
 }

@@ -72,13 +72,13 @@ func HttpRun(port string) {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
 	})
-	itemRepo := itemrepository.NewItemPresistenRepository(db)
-	itemUC := itemUsecase.NewItemUsecase(itemRepo)
-	itemHandler.NewItemHandler(app, myValidator, itemUC)
-
 	priceRepo := priceRepository.NewPricePresistentRepository(db)
 	priceUC := priceUsecase.NewPriceUsecase(priceRepo)
 	priceHandler.NewPriceHandler(app, myValidator, priceUC)
+
+	itemRepo := itemrepository.NewItemPresistenRepository(db)
+	itemUC := itemUsecase.NewItemUsecase(itemRepo, priceUC)
+	itemHandler.NewItemHandler(app, myValidator, itemUC)
 
 	cartRepository := cartRepository.NewcartPresistentRepository(db)
 	cartUsecase := cartUsecase.NewCartUsecase(cartRepository, itemRepo, priceRepo)

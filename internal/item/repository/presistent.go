@@ -43,9 +43,11 @@ func (m itemPresistentRepository) GetItemDetails(id int64) (item model.Item, err
 	return
 }
 func (m itemPresistentRepository) DeleteItem(id int64) (err error) {
+	err = m.DB.Delete(&model.Item{}, id).Error
 	return
 }
 
 func (m itemPresistentRepository) UpdateItem(item *model.Item) (err error) {
+	err = m.DB.Save(item).Where("id = ?", item.ID).Model(&model.Item{}).Error
 	return
 }

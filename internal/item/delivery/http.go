@@ -163,11 +163,12 @@ func (h *ItemHandler) SaveItem(c *fiber.Ctx) error {
 	imageUrl := fmt.Sprintf("http://47.236.241.247/images/%s", filename)
 
 	Items := model.Item{
-		ImageUrl:     imageUrl,
 		ItemName:     SaveItemRequest.ItemName,
 		MaxPriceItem: SaveItemRequest.MaxPrice,
 	}
-
+	if file != nil {
+		Items.ImageUrl = imageUrl
+	}
 	for _, v := range SaveItemRequest.Price {
 		Items.Price = append(Items.Price, model.Price{
 			Price:  v.Price,

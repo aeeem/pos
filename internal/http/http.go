@@ -71,7 +71,7 @@ func HttpRun(port string) {
 
 	app := fiber.New()
 	app.Use(logger.New(logger.Config{
-		Format: "[${ip}]:${port} ${status} - ${method} ${path} ${latency} ${body}\n",
+		Format: "[${ip}]:${port} ${status} - ${method} ${path} ${latency} ${body} ${resBody}\n",
 	}))
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")

@@ -30,6 +30,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/rs/zerolog/log"
 
 	"github.com/spf13/viper"
@@ -69,9 +70,13 @@ func HttpRun(port string) {
 	helper.TransactionTrigger(db)
 
 	app := fiber.New()
+	app.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path} ${latency} ${body}\n",
+	}))
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
 	})
+
 	priceRepo := priceRepository.NewPricePresistentRepository(db)
 	priceUC := priceUsecase.NewPriceUsecase(priceRepo)
 	priceHandler.NewPriceHandler(app, myValidator, priceUC)

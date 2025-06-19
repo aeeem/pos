@@ -39,7 +39,7 @@ func (m itemPresistentRepository) GetItems(offset, limit int64, search string) (
 }
 
 func (m itemPresistentRepository) GetItemDetails(id int64) (item model.Item, err error) {
-	err = m.DB.First(&item, id).Error
+	err = m.DB.Preload("Price").First(&item, id).Error
 	return
 }
 func (m itemPresistentRepository) DeleteItem(id int64) (err error) {
@@ -48,6 +48,6 @@ func (m itemPresistentRepository) DeleteItem(id int64) (err error) {
 }
 
 func (m itemPresistentRepository) UpdateItem(item *model.Item) (err error) {
-	err = m.DB.Save(item).Where("id = ?", item.ID).Model(&model.Item{}).Error
+	err = m.DB.Updates(item).Where("id = ?", item.ID).Model(&model.Item{}).Error
 	return
 }

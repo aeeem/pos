@@ -57,18 +57,29 @@ func (m *itemUsecase) UpdateItem(item *model.Item) (err error) {
 	price := item.Price
 
 	item.Price = []model.Price{}
-
-	err = m.itemRepository.UpdateItem(item)
-
-	for _, v := range price {
-		v.ItemID = item.ID
-		v.Active = true
-		err = m.priceUsecase.SavePrice(&v)
-		if err != nil {
-			return
-		}
-		item.Price = append(item.Price, v)
+	//get old image url
+	old_item, err := m.GetItemDetails(int64(item.ID))
+	if err != nil {
+		return
+	}
+	if item.ImageUrl == "" {
+		item.ImageUrl = old_item.ImageUrl
 	}
 
+	err = m.itemRepository.UpdateItem(item)
+	if len(item.Price) > 0 {
+		for _, v := range price {
+			v.ItemID = item.ID
+			v.Active = true
+			err = m.priceUsecase.SavePrice(&v)
+			if err != nil {
+				return
+			}
+			item.Price = append(item.Price, v)
+		}
+	} else {
+		item.Price = old_item.Price
+	}
+	item.CreatedAt = old_item.CreatedAt
 	return
 }

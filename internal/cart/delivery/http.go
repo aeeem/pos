@@ -8,6 +8,7 @@ import (
 	"pos/internal/http_error"
 	"pos/internal/model"
 	"pos/internal/validator"
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -173,5 +174,31 @@ func (m CartHandler) UpdateCart(c *fiber.Ctx) (err error) {
 }
 
 func (m CartHandler) DeleteCart(c *fiber.Ctx) (err error) {
-	return
+	print("sampe")
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: "id should be a number",
+		})
+	}
+	if id == 0 {
+		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{
+			Code:    fiber.ErrBadRequest.Code,
+			Message: "id is required",
+		})
+	}
+	err = m.CartUsecase.DeleteCart(uint(id))
+	if err != nil {
+		herr := http_error.CheckError(err)
+		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Error{
+			Code:    herr.HTTPErrorCode,
+			Message: herr.Message,
+		})
+	}
+	return c.JSON(helper.StandardResponse{
+		Status:  "success",
+		Message: "cart deleted successfully",
+		Data:    nil,
+	})
 }

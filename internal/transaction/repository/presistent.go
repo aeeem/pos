@@ -28,7 +28,7 @@ func (t *transactionRepository) Savetransaction(transaction *model.Transaction) 
 func (t *transactionRepository) GetTransactions(page, limit int64, search string, status model.Status, customerID int64) (transactions []model.Transaction, total int64, err error) {
 	total = int64(0)
 	err = t.DB.Model(&model.Transaction{}).Count(&total).Error
-	err = t.DB.Limit(int(limit)).Offset(int(page)).Preload("Cart").Where("customer_id = ?", customerID).Find(&transactions).Error
+	err = t.DB.Limit(int(limit)).Offset(int(page)).Preload("Cart").Where("customer_id = ?", customerID).Order("customer_transaction_no desc").Find(&transactions).Error
 	if err != nil {
 		return
 	}

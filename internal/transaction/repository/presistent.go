@@ -28,7 +28,10 @@ func (t *transactionRepository) Savetransaction(transaction *model.Transaction) 
 func (t *transactionRepository) GetTransactions(page, limit int64, search string, status model.Status, customerID int64) (transactions []model.Transaction, total int64, err error) {
 	total = int64(0)
 	err = t.DB.Model(&model.Transaction{}).Count(&total).Error
-	err = t.DB.Limit(int(limit)).Offset(int(page)).Preload("Cart").Where("customer_id = ?", customerID).Order("customer_transaction_no desc").Find(&transactions).Error
+	err = t.DB.Limit(int(limit)).Offset(int(page)).Preload("Cart",
+		func(db *gorm.DB) *gorm.DB {
+			return db.Order("carts.id ASC")
+		}).Where("customer_id = ?", customerID).Order("customer_transaction_no desc").Find(&transactions).Error
 	if err != nil {
 		return
 	}
@@ -36,7 +39,10 @@ func (t *transactionRepository) GetTransactions(page, limit int64, search string
 }
 
 func (t *transactionRepository) GetTransactionDetails(id int64) (transaction model.Transaction, err error) {
-	err = t.DB.Preload("Cart").First(&transaction, id).Error
+	err = t.DB.Preload("Cart",
+		func(db *gorm.DB) *gorm.DB {
+			return db.Order("carts.id desc")
+		}).First(&transaction, id).Error
 	return
 }
 func (t *transactionRepository) Deletetransaction(id int64) (err error) {

@@ -42,7 +42,7 @@ func (T *Transaction) BeforeUpdate(tx *gorm.DB) (err error) {
 			//update_customer transaction no
 		}
 	}
-	err = tx.Model(Cart{}).Where("transaction_id = ?", T.ID).Select("sum(sub_price)").Scan(&T.TotalPrice).Error
+	err = tx.Model(Cart{}).Where("transaction_id = ?", T.ID).Select("Coalasce(0,sum(sub_price))").Scan(&T.TotalPrice).Error
 	//get transaction oldstate
 	if err != nil {
 		return

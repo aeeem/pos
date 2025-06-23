@@ -49,3 +49,27 @@ func (T *Transaction) BeforeUpdate(tx *gorm.DB) (err error) {
 	}
 	return
 }
+
+func (T *Transaction) BeforeDelete(tx *gorm.DB) (err error) {
+	tOld := Transaction{}
+	err = tx.Model(Transaction{}).Where("id = ?", T.ID).First(&tOld).Error
+	if tOld.Status != T.Status {
+		if tOld.Status == "draft" && (T.Status == "pending" || T.Status == "completed") {
+			//update_customer transaction no
+			last_tx_no := 0
+			err = tx.Model(Transaction{}).Where("status = pending OR status = completed").Select("customer_transaction_no").Order("customer_transaction_no desc").Limit(1).Scan(&last_tx_no).Error
+			T.CustomerTransactionNo = uint(last_tx_no + 1)
+
+		}
+		if tOld.Status == "pending" && (T.Status == "completed") {
+			T.CustomerTransactionNo = tOld.CustomerTransactionNo
+			//update_customer transaction no
+		}
+	}
+	err = tx.Model(Cart{}).Where("transaction_id = ?", T.ID).Select("Coalasce(0,sum(sub_price))").Scan(&T.TotalPrice).Error
+	//get transaction oldstate
+	if err != nil {
+		return
+	}
+	return
+}

@@ -134,7 +134,7 @@ $BODY$;`).Error
 
 func CreateStatusEnum(db *gorm.DB) {
 	err := db.Exec(`DROP TYPE IF EXISTS status;
-CREATE TYPE status AS ENUM ('pending', 'completed', 'canceled','draft');`).Error
+CREATE TYPE status AS ENUM ('pending', 'completed', 'cancelled','draft');`).Error
 	if err != nil {
 		log.Print(err)
 	}

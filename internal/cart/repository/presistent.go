@@ -19,7 +19,11 @@ func NewcartPresistentRepository(db *gorm.DB) cart.CartRepository {
 }
 
 func (c cartPresistentRepository) DeleteCart(cart uint) (err error) {
-	err = c.DB.Where("id = ?", cart).Delete(&model.Cart{}).Error
+	err = c.DB.Where("id = ?", cart).Delete(&model.Cart{
+		Model: gorm.Model{
+			ID: cart,
+		},
+	}).Error
 	return
 }
 

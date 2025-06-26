@@ -2,10 +2,12 @@ package http
 
 import (
 	"fmt"
+	"os"
 	"pos/internal/helper"
 	itemHandler "pos/internal/item/delivery"
 	itemrepository "pos/internal/item/repository"
 	itemUsecase "pos/internal/item/usecase"
+	"time"
 
 	"pos/internal/model"
 	"pos/internal/seeder"
@@ -31,11 +33,14 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/rs/zerolog/log"
 
+	logs "log"
+
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 var validate = validator.New()
@@ -44,7 +49,16 @@ func HttpRun(port string) {
 	myValidator := &internalValidator.XValidator{
 		Validator: validate,
 	}
-
+	newLogger := gormLogger.New(
+		logs.New(os.Stdout, "\r\n", logs.LstdFlags), // io writer
+		gormLogger.Config{
+			SlowThreshold:             time.Second,     // Slow SQL threshold
+			LogLevel:                  gormLogger.Info, // Log level
+			IgnoreRecordNotFoundError: true,            // Ignore ErrRecordNotFound error for logger
+			ParameterizedQueries:      true,            // Don't include params in the SQL log
+			Colorful:                  true,            // Disable color
+		},
+	)
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DSN: fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
 			viper.GetString("database.host"),
@@ -52,7 +66,8 @@ func HttpRun(port string) {
 			viper.GetString("database.pass"),
 			viper.GetString("database.name"), viper.GetString("database.port")),
 		PreferSimpleProtocol: true, // disables implicit prepared statement usage
-	}), &gorm.Config{})
+	}), &gorm.Config{Logger: newLogger})
+
 	if err != nil {
 		panic(err)
 	}
@@ -61,13 +76,13 @@ func HttpRun(port string) {
 	//migration
 	db.AutoMigrate(&model.Item{}, &model.Price{}, &model.Transaction{}, &model.Cart{}, &model.Customer{})
 	//creating trigger function after migrations
-	helper.CheckCustomer(db)
-	helper.CheckCustomerCountAfterUpdate(db)
-	helper.UpdateTotalPrice(db)
+	// helper.CheckCustomer(db)
+	// helper.CheckCustomerCountAfterUpdate(db)
+	// helper.UpdateTotalPrice(db)
 	//creating table trigger after migrations
-	helper.UpdateTransactionTrigger(db)
-	helper.CartTrigger(db)
-	helper.TransactionTrigger(db)
+	// helper.UpdateTransactionTrigger(db)
+	// helper.CartTrigger(db)
+	// helper.TransactionTrigger(db)
 
 	app := fiber.New()
 	app.Use(logger.New(logger.Config{

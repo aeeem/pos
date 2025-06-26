@@ -58,6 +58,47 @@ func (T *Transaction) BeforeCreate(tx *gorm.DB) (err error) {
 func (T *Transaction) BeforeUpdate(tx *gorm.DB) (err error) {
 	tOld := Transaction{}
 	err = tx.Model(Transaction{}).Where("id = ?", T.ID).First(&tOld).Error
+	if T.CustomerTransactionNo != tOld.CustomerTransactionNo {
+		//check if customer transaction no is ok to update
+		cnt := int64(0)
+		err = tx.Table("transactions").Where("id < ?", T.ID).Count(&cnt).Error
+		if err != nil {
+			return
+		} // count data  where id is less than t id
+		/*
+			I.E
+			1 2 3 4 5
+
+			change data where customer id is 4 to 1 is not valid
+			because
+			4 index is 3
+			counting data before 4 is 3
+
+			1 - 3 = -2 <- it cant be happend so throw error
+			other example if
+			4 changed to 6
+			data count before 4 value is 3
+			then
+			6-3 = 3 <- valid
+			because customer transaction no cant be 0 then throw error
+
+		*/
+		if cnt > 0 {
+			if (int64(T.CustomerTransactionNo) - cnt) <= 0 {
+				return errors.New("customer transaction no cant be this number other number can be negative or zero")
+			}
+		}
+		if T.Status == "cancelled" && tOld.Status == "cancelled" {
+			return errors.New("status already cancelled cannot update customer")
+			//update_customer transaction no
+		}
+		err = tx.Table("transactions").Where("id <> ?", T.ID).Update("customer_transaction_no", gorm.Expr("(customer_transaction_no - ?) + ?", tOld.CustomerTransactionNo, T.CustomerTransactionNo)).Error
+		if err != nil {
+			log.Debug().Err(err).Msg("Error when updating customer transaction no")
+			return
+		}
+	}
+
 	if tOld.Status != T.Status {
 		if tOld.Status == "draft" && (T.Status == "pending" || T.Status == "completed") {
 			//update_customer transaction no

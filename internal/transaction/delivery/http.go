@@ -143,6 +143,9 @@ func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 		Transaction.Status = model.Status(*SaveItemRequest.Status)
 	}
 
+	if SaveItemRequest.CustomerTransactionNo != 0 {
+		Transaction.CustomerTransactionNo = uint(SaveItemRequest.CustomerTransactionNo)
+	}
 	if len(SaveItemRequest.Cart) > 0 {
 		for _, v := range SaveItemRequest.Cart {
 			Transaction.Cart = append(Transaction.Cart, model.Cart{
@@ -203,7 +206,9 @@ func (t TransactionHandler) Updatetransaction(c *fiber.Ctx) error {
 	if SaveItemRequest.Status != nil {
 		Transaction.Status = model.Status(*SaveItemRequest.Status)
 	}
-
+	if SaveItemRequest.CustomerTransactionNo != 0 {
+		Transaction.CustomerTransactionNo = uint(SaveItemRequest.CustomerTransactionNo)
+	}
 	err := t.TransactionUsecase.UpdateTransaction(&Transaction)
 	if err != nil {
 		return c.Status(fiber.ErrBadRequest.Code).JSON(&fiber.Error{

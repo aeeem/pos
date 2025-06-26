@@ -55,8 +55,6 @@ func (C *Cart) AfterDelete(tx *gorm.DB) (err error) {
 	if err != nil {
 		return
 	}
-	log.Info().Any("Total", Total).Msg("Total")
-	log.Info().Any("TransactionID", DetailedCart.TransactionID).Msg("TransactionID")
 	err = tx.Table("transactions").Where("id = ?", DetailedCart.TransactionID).Update("total_price", Total).Error
 	if err != nil {
 		return

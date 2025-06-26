@@ -70,11 +70,14 @@ func (t *transactionUsecase) DeleteTransaction(id int64) (err error) {
 }
 func (t *transactionUsecase) UpdateTransaction(transaction *model.Transaction) (err error) {
 	//check if transaction is exist
-	_, err = t.GetTransactionDetails(int64(transaction.ID))
+	oldtx, err := t.GetTransactionDetails(int64(transaction.ID))
 	if err != nil {
 		return
 	}
 
+	if transaction.CustomerTransactionNo == 0 {
+		transaction.CustomerTransactionNo = oldtx.CustomerTransactionNo
+	}
 	err = t.transactionRepository.Updatetransaction(transaction)
 	return
 }

@@ -6,10 +6,11 @@ import (
 )
 
 type SaveOrUpdate struct {
-	CustomerID   int                     `json:"customer_id" validate:"omitempty,numeric"`
-	CustomerName string                  `json:"customer_name" validate:"required"`
-	Status       *string                 `json:"status" validate:"oneof=completed cancelled pending draft"`
-	Cart         []delivery.SaveOrUpdate `json:"cart" validate:"omitempty,dive"`
+	CustomerTransactionNo int                     `json:"customer_transaction_no" validate:"omitempty,numeric"`
+	CustomerID            int                     `json:"customer_id" validate:"omitempty,numeric"`
+	CustomerName          string                  `json:"customer_name" validate:"required"`
+	Status                *string                 `json:"status" validate:"oneof=completed cancelled pending draft"`
+	Cart                  []delivery.SaveOrUpdate `json:"cart" validate:"omitempty,dive"`
 }
 
 type GetTransactionsRequest struct {

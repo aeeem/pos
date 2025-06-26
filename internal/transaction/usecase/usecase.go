@@ -74,10 +74,22 @@ func (t *transactionUsecase) UpdateTransaction(transaction *model.Transaction) (
 	if err != nil {
 		return
 	}
-
-	if transaction.CustomerTransactionNo == 0 {
-		transaction.CustomerTransactionNo = oldtx.CustomerTransactionNo
+	if transaction.CustomerTransactionNo != 0 {
+		oldtx.CustomerTransactionNo = transaction.CustomerTransactionNo
 	}
-	err = t.transactionRepository.Updatetransaction(transaction)
+
+	if oldtx.CustomerID != transaction.CustomerID {
+		oldtx.CustomerID = transaction.CustomerID
+	}
+
+	if oldtx.CustomerName != transaction.CustomerName {
+		oldtx.CustomerName = transaction.CustomerName
+	}
+
+	if oldtx.Status != transaction.Status {
+		oldtx.Status = transaction.Status
+	}
+
+	err = t.transactionRepository.Updatetransaction(&oldtx)
 	return
 }

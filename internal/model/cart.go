@@ -22,7 +22,7 @@ type Cart struct {
 
 func (C *Cart) AfterUpdate(tx *gorm.DB) (err error) {
 	Total := float64(0)
-	err = tx.Model(Cart{}).Where("transaction_id = ?", C.TransactionID).Select("sum(sub_price)").Scan(&Total).Error
+	err = tx.Table("carts").Where("transaction_id = ?", C.TransactionID).Select("sum(sub_price)").Scan(&Total).Error
 	if err != nil {
 		return
 	}
@@ -32,7 +32,7 @@ func (C *Cart) AfterUpdate(tx *gorm.DB) (err error) {
 
 func (C *Cart) AfterCreate(tx *gorm.DB) (err error) {
 	Total := float64(0)
-	err = tx.Model(Cart{}).Where("transaction_id = ?", C.TransactionID).Select("sum(sub_price)").Scan(&Total).Error
+	err = tx.Table("carts").Where("transaction_id = ?", C.TransactionID).Select("sum(sub_price)").Scan(&Total).Error
 	if err != nil {
 		return
 	}
@@ -49,7 +49,7 @@ func (C *Cart) AfterDelete(tx *gorm.DB) (err error) {
 	}
 	log.Info().Any("Cart", DetailedCart).Msg("carts")
 	Total := float64(0)
-	err = tx.Model(&Cart{}).
+	err = tx.Table("carts").
 		Where("transaction_id = ?", DetailedCart.TransactionID).Select("sum(sub_price) as total").
 		Scan(&Total).Error
 	if err != nil {

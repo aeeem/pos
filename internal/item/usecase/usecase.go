@@ -62,6 +62,7 @@ func (m *itemUsecase) UpdateItem(item *model.Item) (err error) {
 	if err != nil {
 		return
 	}
+
 	if item.ImageUrl == "" {
 		item.ImageUrl = old_item.ImageUrl
 	}
@@ -75,11 +76,10 @@ func (m *itemUsecase) UpdateItem(item *model.Item) (err error) {
 			if err != nil {
 				return
 			}
-			item.Price = append(item.Price, v)
 		}
 	} else {
 		item.Price = old_item.Price
 	}
-	item.CreatedAt = old_item.CreatedAt
+	*item, err = m.GetItemDetails(int64(item.ID))
 	return
 }

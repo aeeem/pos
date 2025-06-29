@@ -139,3 +139,11 @@ CREATE TYPE status AS ENUM ('pending', 'completed', 'cancelled','draft');`).Erro
 		log.Print(err)
 	}
 }
+
+func CreateDebtStatus(db *gorm.DB) {
+	err := db.Exec(`DROP TYPE IF EXISTS status;
+CREATE TYPE status AS ENUM ('paid', 'unpaid', 'cancelled');`).Error
+	if err != nil {
+		log.Print(err)
+	}
+}

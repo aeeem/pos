@@ -4,6 +4,7 @@ import (
 	"log"
 	"pos/internal/cart"
 	"pos/internal/model"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -19,8 +20,12 @@ func NewcartPresistentRepository(db *gorm.DB) cart.CartRepository {
 }
 
 func (c cartPresistentRepository) DeleteCart(cart uint) (err error) {
-	err = c.DB.Where("id = ?", cart).Delete(&model.Cart{
+	err = c.DB.Delete(&model.Cart{
 		Model: gorm.Model{
+			DeletedAt: gorm.DeletedAt{
+				Time:  time.Now(),
+				Valid: true,
+			},
 			ID: cart,
 		},
 	}).Error

@@ -73,8 +73,10 @@ func HttpRun(port string) {
 	}
 	//create enum
 	helper.CreateStatusEnum(db)
+	helper.CreateDebtStatus(db)
+
 	//migration
-	db.AutoMigrate(&model.Item{}, &model.Price{}, &model.Transaction{}, &model.Cart{}, &model.Customer{})
+	db.AutoMigrate(&model.Item{}, &model.Price{}, &model.Transaction{}, &model.Cart{}, &model.Customer{}, &model.CustomerDebt{})
 	//creating trigger function after migrations
 	// helper.CheckCustomer(db)
 	// helper.CheckCustomerCountAfterUpdate(db)

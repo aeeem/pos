@@ -22,21 +22,84 @@ type Cart struct {
 
 func (C *Cart) AfterUpdate(tx *gorm.DB) (err error) {
 	Total := float64(0)
-	err = tx.Table("carts").Where("transaction_id = ?", C.TransactionID).Select("sum(sub_price)").Scan(&Total).Error
+	err = tx.Table("carts").Where("transaction_id = ?  AND deleted_at is null", C.TransactionID).Select("sum(sub_price)").Scan(&Total).Error
 	if err != nil {
 		return
 	}
+
 	err = tx.Table("transactions").Where("id = ?", C.TransactionID).Update("total_price", Total).Error
+	if err != nil {
+		return
+	}
+	T := Transaction{}
+	err = tx.Model(Transaction{}).Where("id = ?", C.TransactionID).First(&T).Error
+	if err != nil {
+		return
+	}
+	if T.Status == "pending" {
+		err = tx.Model(CustomerDebt{}).Where("trx_id=?", T.ID).Update("total_transaction", Total).Error
+		if err != nil {
+			return
+		}
+		TotalDebt := float64(0)
+		err = tx.Table("customer_debts").Where("customer_id = ?", T.CustomerID).Select("sum(total_transaction)").Scan(&TotalDebt).Error
+		if err != nil {
+			return
+		}
+		err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_debt", TotalDebt).Error
+		if err != nil {
+			return
+		}
+	}
+	CustomerTotalTransaction := float64(0)
+	err = tx.Table("transactions").Where("customer_id = ?", T.CustomerID).Select("sum(total_price)").Scan(&CustomerTotalTransaction).Error
+	if err != nil {
+		return
+	}
+	err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_transaction", CustomerTotalTransaction).Error
+	if err != nil {
+		return
+	}
 	return
 }
 
 func (C *Cart) AfterCreate(tx *gorm.DB) (err error) {
 	Total := float64(0)
-	err = tx.Table("carts").Where("transaction_id = ?", C.TransactionID).Select("sum(sub_price)").Scan(&Total).Error
+	err = tx.Table("carts").Where("transaction_id = ?  AND deleted_at is null", C.TransactionID).Select("sum(sub_price)").Scan(&Total).Error
 	if err != nil {
 		return
 	}
 	err = tx.Table("transactions").Where("id = ?", C.TransactionID).Update("total_price", Total).Error
+	//get transactions
+	T := Transaction{}
+	err = tx.Model(Transaction{}).Where("id = ?", C.TransactionID).First(&T).Error
+	if err != nil {
+		return
+	}
+	if T.Status == "pending" {
+		err = tx.Model(CustomerDebt{}).Where("trx_id=?", T.ID).Update("total_transaction", Total).Error
+		if err != nil {
+			return
+		}
+		TotalDebt := float64(0)
+		err = tx.Table("customer_debts").Where("customer_id = ?", T.CustomerID).Select("sum(total_transaction)").Scan(&TotalDebt).Error
+		if err != nil {
+			return
+		}
+		err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_debt", TotalDebt).Error
+		if err != nil {
+			return
+		}
+	}
+	CustomerTotalTransaction := float64(0)
+	err = tx.Table("transactions").Where("customer_id = ?", T.CustomerID).Select("sum(total_price)").Scan(&CustomerTotalTransaction).Error
+	if err != nil {
+		return
+	}
+	err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_transaction", CustomerTotalTransaction).Error
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -50,12 +113,42 @@ func (C *Cart) AfterDelete(tx *gorm.DB) (err error) {
 	log.Info().Any("Cart", DetailedCart).Msg("carts")
 	Total := float64(0)
 	err = tx.Table("carts").
-		Where("transaction_id = ?", DetailedCart.TransactionID).Select("sum(sub_price) as total").
+		Where("transaction_id = ? AND deleted_at is null", DetailedCart.TransactionID).Select("sum(sub_price) as total").
 		Scan(&Total).Error
 	if err != nil {
 		return
 	}
 	err = tx.Table("transactions").Where("id = ?", DetailedCart.TransactionID).Update("total_price", Total).Error
+	if err != nil {
+		return
+	}
+	T := Transaction{}
+	err = tx.Model(Transaction{}).Where("id = ?", DetailedCart.TransactionID).First(&T).Error
+	if err != nil {
+		log.Error().Err(err).Msg("error")
+		return
+	}
+	if T.Status == "pending" {
+		err = tx.Model(CustomerDebt{}).Where("trx_id=?", T.ID).Update("total_transaction", Total).Error
+		if err != nil {
+			return
+		}
+		TotalDebt := float64(0)
+		err = tx.Table("customer_debts").Where("customer_id = ?", T.CustomerID).Select("sum(total_transaction)").Scan(&TotalDebt).Error
+		if err != nil {
+			return
+		}
+		err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_debt", TotalDebt).Error
+		if err != nil {
+			return
+		}
+	}
+	CustomerTotalTransaction := float64(0)
+	err = tx.Table("transactions").Where("customer_id = ?", T.CustomerID).Select("sum(total_price)").Scan(&CustomerTotalTransaction).Error
+	if err != nil {
+		return
+	}
+	err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_transaction", CustomerTotalTransaction).Error
 	if err != nil {
 		return
 	}

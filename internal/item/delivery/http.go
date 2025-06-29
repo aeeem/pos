@@ -155,7 +155,7 @@ func (h *ItemHandler) SaveItem(c *fiber.Ctx) error {
 	if err != nil {
 		log.Print(err)
 	} else {
-
+		SaveItemRequest.ItemName = strings.ReplaceAll(SaveItemRequest.ItemName, " ", "_")
 		filename := fmt.Sprintf("%s-%s", uuid.New().String(), SaveItemRequest.ItemName)
 		fileExt := strings.Split(file.Filename, ".")[1]
 		filename = fmt.Sprintf("%s.%s", filename, fileExt)

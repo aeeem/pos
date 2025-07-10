@@ -28,6 +28,16 @@ import (
 	priceRepository "pos/internal/price/repository"
 	priceUsecase "pos/internal/price/usecase"
 
+	customerDebtHandler "pos/internal/customer_debt/delivery"
+	customerDebtRepository "pos/internal/customer_debt/repository"
+	customerDebtUsecase "pos/internal/customer_debt/usecase"
+
+	MutationHandler "pos/internal/mutation/delivery"
+	MutationRepository "pos/internal/mutation/repository"
+	MutationUsecase "pos/internal/mutation/usecase"
+
+	DebtMutationRepository "pos/internal/customer_mutation/repository"
+	DebtMutationUsecase "pos/internal/customer_mutation/usecase"
 	internalValidator "pos/internal/validator"
 
 	"github.com/go-playground/validator/v10"
@@ -76,7 +86,16 @@ func HttpRun(port string) {
 	helper.CreateDebtStatus(db)
 
 	//migration
-	db.AutoMigrate(&model.Item{}, &model.Price{}, &model.Transaction{}, &model.Cart{}, &model.Customer{}, &model.CustomerDebt{})
+	db.AutoMigrate(
+		&model.Item{},
+		&model.Price{},
+		&model.Transaction{},
+		&model.Cart{},
+		&model.Customer{},
+		&model.CustomerDebt{},
+		&model.Mutation{},
+		&model.CustomerDebtMutations{})
+
 	//creating trigger function after migrations
 	// helper.CheckCustomer(db)
 	// helper.CheckCustomerCountAfterUpdate(db)
@@ -114,6 +133,16 @@ func HttpRun(port string) {
 	customerUsecase := customerUsecase.NewCustomerUsecase(customerRepo)
 	customerHandler.NewCustomerHandler(app, customerUsecase, myValidator)
 
+	mutationRepository := MutationRepository.NewMutationRepository(db)
+	mutationUsecase := MutationUsecase.NewMutationUsecase(mutationRepository)
+	MutationHandler.NewMutationHandler(app, mutationUsecase, myValidator)
+
+	DMRepo := DebtMutationRepository.NewCustomerMutationRepository(db)
+	DmUsecase := DebtMutationUsecase.NewCustomerDebtMutationUsecase(DMRepo)
+
+	customerDebtRepository := customerDebtRepository.NewCustomerDebtPresistentRepository(db)
+	customerDebtUsecase := customerDebtUsecase.NewCustomerUsecase(customerDebtRepository, mutationUsecase, DmUsecase)
+	customerDebtHandler.NewCustomerdebtHandler(app, myValidator, customerDebtUsecase)
 	if viper.GetString("seed") == "true" {
 		seeder.SeedItem(db)
 		log.Info().Msg("item seeder")

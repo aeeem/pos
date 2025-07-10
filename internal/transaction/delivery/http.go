@@ -107,6 +107,7 @@ func (t TransactionHandler) GetTransactionDetails(c *fiber.Ctx) error {
 		Data:    transaction,
 	})
 }
+
 func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 	SaveItemRequest := SaveOrUpdate{}
 	if err := json.Unmarshal(c.Body(), &SaveItemRequest); err != nil {

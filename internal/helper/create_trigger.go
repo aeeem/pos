@@ -141,8 +141,16 @@ CREATE TYPE status AS ENUM ('pending', 'completed', 'cancelled','draft');`).Erro
 }
 
 func CreateDebtStatus(db *gorm.DB) {
-	err := db.Exec(`DROP TYPE IF EXISTS status;
-CREATE TYPE status AS ENUM ('paid', 'unpaid', 'cancelled');`).Error
+	err := db.Exec(`DROP TYPE IF EXISTS debt_status;
+CREATE TYPE debt_status AS ENUM ('paid', 'unpaid', 'cancelled','half_paid');`).Error
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func CreateMutationType(db *gorm.DB) {
+	err := db.Exec(`DROP TYPE IF EXISTS mutation_type;
+CREATE TYPE mutation_type AS ENUM ('cash_in', 'cash_out');`).Error
 	if err != nil {
 		log.Print(err)
 	}

@@ -23,7 +23,7 @@ type Transaction struct {
 	Customer              Customer       `json:"customer" gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	CustomerTransactionNo uint           `json:"customer_transaction_no" gorm:"default:0"`
 	CustomerName          string         `json:"customer_name" gorm:"index:idx_customer_name"`
-	Status                Status         `gorm:"type:status" json:"status" gorm:"default:draft"`
+	Status                Status         `gorm:"type:status" json:"status" gorm:"type:status;default:draft"`
 	TotalPrice            float64        `json:"total_price" gorm:"default:0"`
 	Cart                  []Cart         `json:"cart"`
 	CartJson              datatypes.JSON `json:"-"`
@@ -56,21 +56,7 @@ func (T *Transaction) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func (T *Transaction) AfterCreate(tx *gorm.DB) (err error) {
-	if T.Status == "pending" {
-		err = tx.Model(CustomerDebt{}).Create(&CustomerDebt{CustomerID: T.CustomerID, TrxID: T.ID, DebtStatus: Unpaid, TotalTransaction: T.TotalPrice}).Error
-		if err != nil {
-			return
-		}
-		TotalDebt := float64(0)
-		err = tx.Table("customer_debts").Where("customer_id = ?", T.CustomerID).Select("sum(total_transaction)").Scan(&TotalDebt).Error
-		if err != nil {
-			return
-		}
-		err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_debt", TotalDebt).Error
-		if err != nil {
-			return
-		}
-	}
+
 	CustomerTotalTransaction := float64(0)
 	err = tx.Table("transactions").Where("customer_id = ?", T.CustomerID).Select("sum(total_price)").Scan(&CustomerTotalTransaction).Error
 	if err != nil {
@@ -84,35 +70,7 @@ func (T *Transaction) AfterCreate(tx *gorm.DB) (err error) {
 }
 
 func (T *Transaction) AfterUpdate(tx *gorm.DB) (err error) {
-	if T.Status == "completed" {
-		err = tx.Model(CustomerDebt{}).Where("trx_id=?", T.ID).Update("debt_status", Paid).Error
-		if err != nil {
-			return
-		}
-		TotalDebt := float64(0)
-		err = tx.Table("customer_debts").Where("customer_id = ? AND debt_status = ?", T.CustomerID, "paid").Select("Coalesce(0,sum(total_transaction))").Scan(&TotalDebt).Error
-		if err != nil {
-			return
-		}
-		err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_debt", TotalDebt).Error
-		if err != nil {
-			return
-		}
-	} else if T.Status == "pending" {
-		err = tx.Model(CustomerDebt{}).Where("trx_id=?", T.ID).Update("debt_status", Unpaid).Error
-		if err != nil {
-			return
-		}
-		TotalDebt := float64(0)
-		err = tx.Table("customer_debts").Where("customer_id = ?", T.CustomerID).Select("sum(total_transaction)").Scan(&TotalDebt).Error
-		if err != nil {
-			return
-		}
-		err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_debt", TotalDebt).Error
-		if err != nil {
-			return
-		}
-	}
+
 	CustomerTotalTransaction := float64(0)
 	err = tx.Table("transactions").Where("customer_id = ?", T.CustomerID).Select("sum(total_price)").Scan(&CustomerTotalTransaction).Error
 	if err != nil {
@@ -122,6 +80,19 @@ func (T *Transaction) AfterUpdate(tx *gorm.DB) (err error) {
 	if err != nil {
 		return
 	}
+
+	if T.Status == Completed {
+		totaldebt := float64(0)
+		err = tx.Table("customer_debts").Where("customer_id = ?", T.CustomerID).Select("sum(unpaid_amount)").Scan(&totaldebt).Error
+		if err != nil {
+			return
+		}
+
+		err = tx.Table("customers").Where("id = ?", T.CustomerID).Update("customer_total_debt", totaldebt).Error
+		if err != nil {
+			return
+		}
+	}
 	return
 }
 
@@ -129,7 +100,7 @@ func (T *Transaction) BeforeUpdate(tx *gorm.DB) (err error) {
 	log.Debug().Msg("masuk before update")
 	tOld := Transaction{}
 	err = tx.Model(Transaction{}).Where("id = ?", T.ID).First(&tOld).Error
-	if T.CustomerTransactionNo != tOld.CustomerTransactionNo {
+	if T.CustomerTransactionNo != tOld.CustomerTransactionNo && T.CustomerTransactionNo > 0 {
 		//check if customer transaction no is ok to update
 		cnt := int64(0)
 		err = tx.Table("transactions").Where("id < ?", T.ID).Count(&cnt).Error

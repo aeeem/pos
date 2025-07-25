@@ -9,7 +9,6 @@ import (
 	itemUsecase "pos/internal/item/usecase"
 	"time"
 
-	"pos/internal/model"
 	"pos/internal/seeder"
 
 	transactionHandler "pos/internal/transaction/delivery"
@@ -39,6 +38,8 @@ import (
 	DebtMutationRepository "pos/internal/customer_mutation/repository"
 	DebtMutationUsecase "pos/internal/customer_mutation/usecase"
 	internalValidator "pos/internal/validator"
+
+	"pos/internal/domain"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -87,14 +88,14 @@ func HttpRun(port string) {
 
 	//migration
 	db.AutoMigrate(
-		&model.Item{},
-		&model.Price{},
-		&model.Transaction{},
-		&model.Cart{},
-		&model.Customer{},
-		&model.CustomerDebt{},
-		&model.Mutation{},
-		&model.CustomerDebtMutations{})
+		&domain.Item{},
+		&domain.Price{},
+		&domain.Transaction{},
+		&domain.Cart{},
+		&domain.Customer{},
+		&domain.CustomerDebt{},
+		&domain.Mutation{},
+		&domain.CustomerDebtMutations{})
 
 	//creating trigger function after migrations
 	// helper.CheckCustomer(db)

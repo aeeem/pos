@@ -2,11 +2,11 @@ package usecase
 
 import (
 	"pos/internal/cart"
+	"pos/internal/domain"
 	"pos/internal/item"
 	"pos/internal/price"
 
 	"pos/internal/helper"
-	"pos/internal/model"
 	"pos/internal/transaction"
 )
 
@@ -30,7 +30,7 @@ func NewTransactionUsecase(tRepo transaction.TransactionRepository,
 	}
 }
 
-func (t *transactionUsecase) Savetransaction(transaction *model.Transaction) (err error) {
+func (t *transactionUsecase) Savetransaction(transaction *domain.Transaction) (err error) {
 	carts := transaction.Cart
 	transaction.Cart = nil
 	err = t.transactionRepository.Savetransaction(transaction)
@@ -47,15 +47,15 @@ func (t *transactionUsecase) Savetransaction(transaction *model.Transaction) (er
 			return err
 		}
 	}
-	transaction.Cart = make([]model.Cart, len(carts))
+	transaction.Cart = make([]domain.Cart, len(carts))
 	transaction.Cart = carts
 	return
 }
-func (t *transactionUsecase) GetTransactions(page, limit int64, search string, status model.Status, customerID int64) (transactions []model.Transaction, total int64, err error) {
+func (t *transactionUsecase) GetTransactions(page, limit int64, search string, status domain.Status, customerID int64) (transactions []domain.Transaction, total int64, err error) {
 	transactions, total, err = t.transactionRepository.GetTransactions(helper.PageToOffset(page, limit), limit, search, status, customerID)
 	return
 }
-func (t *transactionUsecase) GetTransactionDetails(id int64) (transaction model.Transaction, err error) {
+func (t *transactionUsecase) GetTransactionDetails(id int64) (transaction domain.Transaction, err error) {
 	transaction, err = t.transactionRepository.GetTransactionDetails(id)
 	return
 }
@@ -68,7 +68,7 @@ func (t *transactionUsecase) DeleteTransaction(id int64) (err error) {
 	err = t.transactionRepository.Deletetransaction(id)
 	return
 }
-func (t *transactionUsecase) UpdateTransaction(transaction *model.Transaction) (err error) {
+func (t *transactionUsecase) UpdateTransaction(transaction *domain.Transaction) (err error) {
 	//check if transaction is exist
 	oldtx, err := t.GetTransactionDetails(int64(transaction.ID))
 	if err != nil {

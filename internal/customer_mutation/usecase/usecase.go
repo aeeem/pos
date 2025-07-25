@@ -2,7 +2,7 @@ package usecase
 
 import (
 	customermutation "pos/internal/customer_mutation"
-	"pos/internal/model"
+	"pos/internal/domain"
 )
 
 type CustomerDebtMutationUsecase struct {
@@ -15,7 +15,7 @@ func NewCustomerDebtMutationUsecase(c customermutation.CustomerMutationRepositor
 	}
 }
 
-func (Cm *CustomerDebtMutationUsecase) SaveCustomerMutation(DebtMutation *model.CustomerDebtMutations) (err error) {
+func (Cm *CustomerDebtMutationUsecase) SaveCustomerMutation(DebtMutation *domain.CustomerDebtMutations) (err error) {
 	err = Cm.DebtMutationRepository.SaveCustomerMutation(DebtMutation)
 	return
 }

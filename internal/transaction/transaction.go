@@ -1,20 +1,22 @@
 package transaction
 
-import "pos/internal/model"
+import (
+	"pos/internal/domain"
+)
 
 type TransactionRepository interface {
-	Savetransaction(transaction *model.Transaction) (err error)
+	Savetransaction(transaction *domain.Transaction) (err error)
 
-	GetTransactions(page, limit int64, search string, status model.Status, customerID int64) (transactions []model.Transaction, total int64, err error)
-	GetTransactionDetails(id int64) (transaction model.Transaction, err error)
+	GetTransactions(page, limit int64, search string, status domain.Status, customerID int64) (transactions []domain.Transaction, total int64, err error)
+	GetTransactionDetails(id int64) (transaction domain.Transaction, err error)
 	Deletetransaction(id int64) (err error)
-	Updatetransaction(transaction *model.Transaction) (err error)
+	Updatetransaction(transaction *domain.Transaction) (err error)
 }
 
 type TransactionUsecase interface {
-	Savetransaction(transaction *model.Transaction) (err error)
-	GetTransactions(page, limit int64, search string, status model.Status, customerID int64) (transactions []model.Transaction, total int64, err error)
-	GetTransactionDetails(id int64) (transaction model.Transaction, err error)
+	Savetransaction(transaction *domain.Transaction) (err error)
+	GetTransactions(page, limit int64, search string, status domain.Status, customerID int64) (transactions []domain.Transaction, total int64, err error)
+	GetTransactionDetails(id int64) (transaction domain.Transaction, err error)
 	DeleteTransaction(id int64) (err error)
-	UpdateTransaction(transaction *model.Transaction) (err error)
+	UpdateTransaction(transaction *domain.Transaction) (err error)
 }

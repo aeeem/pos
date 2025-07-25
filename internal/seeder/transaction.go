@@ -3,8 +3,8 @@ package seeder
 import (
 	"encoding/json"
 	"pos/internal/cart"
+	"pos/internal/domain"
 	"pos/internal/item"
-	"pos/internal/model"
 
 	"pos/internal/transaction"
 
@@ -15,7 +15,7 @@ import (
 func TransactionSeeder(transaction transaction.TransactionUsecase, item item.ItemUsecase, cart cart.CartUsecase, db *gorm.DB) {
 	customer := CustomerName(db)
 
-	NewTrx := model.Transaction{
+	NewTrx := domain.Transaction{
 		CustomerID:            customer.ID,
 		CustomerName:          customer.CustomerName,
 		CustomerTransactionNo: 0,
@@ -62,14 +62,14 @@ func TransactionSeeder(transaction transaction.TransactionUsecase, item item.Ite
 
 }
 
-func SeedCart(item item.ItemUsecase, cart cart.CartUsecase, NewTrx model.Transaction) {
+func SeedCart(item item.ItemUsecase, cart cart.CartUsecase, NewTrx domain.Transaction) {
 	items, _, _ := item.GetItems(1, 10, "")
 	log.Info().Any("items", items).Msg("Items ")
 	for _, itemR := range items {
 
 		quantity := randRange(1, 10)
 		index := uint(randRange(0, len(itemR.Price)))
-		cart.SaveCart(&model.Cart{
+		cart.SaveCart(&domain.Cart{
 			TransactionID: NewTrx.ID,
 			ItemID:        itemR.ID,
 			Quantity:      float64(quantity),

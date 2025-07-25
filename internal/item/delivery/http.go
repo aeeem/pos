@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"pos/internal/domain"
 	"pos/internal/helper"
 	http_error "pos/internal/http_error"
 	"pos/internal/item"
-	"pos/internal/model"
 	"pos/internal/validator"
 	"strconv"
 	"strings"
@@ -146,7 +146,7 @@ func (h *ItemHandler) SaveItem(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		}
 	}
-	Items := model.Item{
+	Items := domain.Item{
 		ItemName:     SaveItemRequest.ItemName,
 		MaxPriceItem: SaveItemRequest.MaxPrice,
 	}
@@ -169,7 +169,7 @@ func (h *ItemHandler) SaveItem(c *fiber.Ctx) error {
 	}
 
 	for _, v := range SaveItemRequest.Price {
-		Items.Price = append(Items.Price, model.Price{
+		Items.Price = append(Items.Price, domain.Price{
 			Price:  v.Price,
 			Active: v.Active,
 			Unit:   v.Unit,
@@ -224,7 +224,7 @@ func (h *ItemHandler) UpdateItem(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		})
 	}
-	Item := model.Item{
+	Item := domain.Item{
 		Model: gorm.Model{
 			ID: uint(id),
 		},
@@ -232,7 +232,7 @@ func (h *ItemHandler) UpdateItem(c *fiber.Ctx) error {
 	}
 	if len(SaveItemRequest.Price) != 0 {
 		for _, v := range SaveItemRequest.Price {
-			Item.Price = append(Item.Price, model.Price{
+			Item.Price = append(Item.Price, domain.Price{
 				Model: gorm.Model{
 					ID: uint(v.ID),
 				},

@@ -2,7 +2,7 @@ package repository
 
 import (
 	customerdebt "pos/internal/customer_debt"
-	"pos/internal/model"
+	"pos/internal/domain"
 
 	"gorm.io/gorm"
 )
@@ -17,14 +17,14 @@ func NewCustomerDebtPresistentRepository(db *gorm.DB) customerdebt.CustomerDebtR
 	}
 }
 
-func (C *CustomerDebtPresistentRepository) GetDebtDetails(debtID uint) (res model.CustomerDebt, err error) {
-	queries := C.DB.Model(&model.CustomerDebt{}).Preload("Mutation").Where("id = ?", debtID)
+func (C *CustomerDebtPresistentRepository) GetDebtDetails(debtID uint) (res domain.CustomerDebt, err error) {
+	queries := C.DB.Model(&domain.CustomerDebt{}).Preload("Mutation").Where("id = ?", debtID)
 	err = queries.First(&res).Error
 	return
 }
 
-func (C *CustomerDebtPresistentRepository) GetByCustomerID(customerID uint, debtType string, dateFrom string, dateTo string, page, limit int, search string) (res []model.CustomerDebt, total int64, err error) {
-	queries := C.DB.Model(&model.CustomerDebt{}).Where("customer_id = ?", customerID)
+func (C *CustomerDebtPresistentRepository) GetByCustomerID(customerID uint, debtType string, dateFrom string, dateTo string, page, limit int, search string) (res []domain.CustomerDebt, total int64, err error) {
+	queries := C.DB.Model(&domain.CustomerDebt{}).Where("customer_id = ?", customerID)
 	if debtType != "" {
 		queries.Where("debt_status", debtType)
 	}
@@ -43,14 +43,14 @@ func (C *CustomerDebtPresistentRepository) GetByCustomerID(customerID uint, debt
 	return
 }
 
-func (C *CustomerDebtPresistentRepository) GetByTransactionID(transaction_id uint) (customerDebt model.CustomerDebt, err error) {
-	queries := C.DB.Model(&model.CustomerDebt{}).Where("trx_id = ?", transaction_id)
+func (C *CustomerDebtPresistentRepository) GetByTransactionID(transaction_id uint) (customerDebt domain.CustomerDebt, err error) {
+	queries := C.DB.Model(&domain.CustomerDebt{}).Where("trx_id = ?", transaction_id)
 	err = queries.First(&customerDebt).Error
 	return
 }
 
-func (C *CustomerDebtPresistentRepository) Fetch(debtType string, dateFrom string, dateTo string, page, limit int, search string) (res []model.CustomerDebt, total int64, err error) {
-	queries := C.DB.Model(&model.CustomerDebt{})
+func (C *CustomerDebtPresistentRepository) Fetch(debtType string, dateFrom string, dateTo string, page, limit int, search string) (res []domain.CustomerDebt, total int64, err error) {
+	queries := C.DB.Model(&domain.CustomerDebt{})
 	if debtType != "" {
 		queries.Where("debt_status", debtType)
 	}
@@ -69,7 +69,7 @@ func (C *CustomerDebtPresistentRepository) Fetch(debtType string, dateFrom strin
 	return
 }
 func (C *CustomerDebtPresistentRepository) PayCustomerDebt(customerID int, status string, transaction_id int, amount float64) (err error) {
-	CustomerDebts := model.CustomerDebt{
+	CustomerDebts := domain.CustomerDebt{
 		CustomerID: uint(customerID),
 		TrxID:      uint(transaction_id),
 	}

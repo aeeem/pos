@@ -1,13 +1,13 @@
 package customermutation
 
 import (
-	"pos/internal/model"
+	"pos/internal/domain"
 )
 
 type CustomerMutationRepository interface {
-	SaveCustomerMutation(mutation *model.CustomerDebtMutations) (err error)
+	SaveCustomerMutation(mutation *domain.CustomerDebtMutations) (err error)
 }
 
 type CustomerMutationUsecase interface {
-	SaveCustomerMutation(mutation *model.CustomerDebtMutations) (err error)
+	SaveCustomerMutation(mutation *domain.CustomerDebtMutations) (err error)
 }

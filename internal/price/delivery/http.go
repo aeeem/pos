@@ -3,9 +3,9 @@ package delivery
 import (
 	"encoding/json"
 	"fmt"
+	"pos/internal/domain"
 	"pos/internal/helper"
 	"pos/internal/http_error"
-	"pos/internal/model"
 	"pos/internal/price"
 	"pos/internal/validator"
 	"strconv"
@@ -105,7 +105,7 @@ func (h *PriceHandler) SavePrice(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		}
 	}
-	Price := model.Price{
+	Price := domain.Price{
 		Price:  SaveItemRequest.Price,
 		Active: SaveItemRequest.Active,
 		Unit:   SaveItemRequest.Unit,
@@ -153,7 +153,7 @@ func (h *PriceHandler) UpdatePrice(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		})
 	}
-	Price := model.Price{
+	Price := domain.Price{
 		Model: gorm.Model{
 			ID: uint(id),
 		},

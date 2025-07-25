@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"pos/internal/model"
+	"pos/internal/domain"
 	"pos/internal/mutation"
 
 	"gorm.io/gorm"
@@ -18,13 +18,13 @@ func NewMutationRepository(db *gorm.DB) mutation.MutationRepository {
 
 }
 
-func (M *MutationRepository) GetCustomerMutation(customerID uint, MutationType string) (CustomerMutation []model.Mutation, err error) {
+func (M *MutationRepository) GetCustomerMutation(customerID uint, MutationType string) (CustomerMutation []domain.Mutation, err error) {
 	err = M.DB.Where("customer_id = ?", customerID).Where("mutation_type = ?", MutationType).Find(&CustomerMutation).Error
 	return
 }
 
-func (M *MutationRepository) SaveCustomerMutation(mutation *model.Mutation) (err error) {
-	err = M.DB.Model(&model.Mutation{}).Create(&mutation).Error
+func (M *MutationRepository) SaveCustomerMutation(mutation *domain.Mutation) (err error) {
+	err = M.DB.Model(&domain.Mutation{}).Create(&mutation).Error
 	if err != nil {
 		return
 	}
@@ -33,12 +33,12 @@ func (M *MutationRepository) SaveCustomerMutation(mutation *model.Mutation) (err
 	return
 }
 
-func (M *MutationRepository) UpdateCustomerMutation(mutationID uint, mutation *model.Mutation) (err error) {
-	err = M.DB.Updates(&mutation).Where("id = ?", mutationID).Model(&model.Mutation{}).Error
+func (M *MutationRepository) UpdateCustomerMutation(mutationID uint, mutation *domain.Mutation) (err error) {
+	err = M.DB.Updates(&mutation).Where("id = ?", mutationID).Model(&domain.Mutation{}).Error
 	return
 }
 
 func (M *MutationRepository) GetCustomerBalance(customerID uint) (CustomerBalance float64, err error) {
-	err = M.DB.Model(&model.Mutation{}).Where("customer_id = ?", customerID).Order("id DESC").Select("customer_balance").First(&CustomerBalance).Error
+	err = M.DB.Model(&domain.Mutation{}).Where("customer_id = ?", customerID).Order("id DESC").Select("customer_balance").First(&CustomerBalance).Error
 	return
 }

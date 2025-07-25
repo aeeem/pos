@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"pos/internal/model"
+	"pos/internal/domain"
 	"pos/internal/mutation"
 )
 
@@ -15,15 +15,15 @@ func NewMutationUsecase(MutationRepository mutation.MutationRepository) mutation
 	}
 }
 
-func (m *MutationUsecase) GetCustomerMutation(customerID uint, MutationType string) (CustomerMutation []model.Mutation, err error) {
+func (m *MutationUsecase) GetCustomerMutation(customerID uint, MutationType string) (CustomerMutation []domain.Mutation, err error) {
 	CustomerMutation, err = m.MutationRepository.GetCustomerMutation(customerID, MutationType)
 	return
 }
-func (m *MutationUsecase) SaveCustomerMutation(mutation *model.Mutation) (err error) {
+func (m *MutationUsecase) SaveCustomerMutation(mutation *domain.Mutation) (err error) {
 	err = m.MutationRepository.SaveCustomerMutation(mutation)
 	return
 }
-func (m *MutationUsecase) UpdateCustomerMutation(mutationID uint, mutation *model.Mutation) (err error) {
+func (m *MutationUsecase) UpdateCustomerMutation(mutationID uint, mutation *domain.Mutation) (err error) {
 	err = m.MutationRepository.UpdateCustomerMutation(mutationID, mutation)
 	return
 }

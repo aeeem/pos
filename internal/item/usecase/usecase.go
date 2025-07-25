@@ -1,9 +1,9 @@
 package usecase
 
 import (
+	"pos/internal/domain"
 	"pos/internal/helper"
 	"pos/internal/item"
-	"pos/internal/model"
 	"pos/internal/price"
 )
 
@@ -19,9 +19,9 @@ func NewItemUsecase(itemRepository item.ItemRepository, priceUsecase price.Price
 	}
 }
 
-func (m *itemUsecase) SaveItem(item *model.Item) (err error) {
+func (m *itemUsecase) SaveItem(item *domain.Item) (err error) {
 	prices := item.Price
-	item.Price = []model.Price{}
+	item.Price = []domain.Price{}
 	err = m.itemRepository.SaveItem(item)
 	if err != nil {
 		return
@@ -39,12 +39,12 @@ func (m *itemUsecase) SaveItem(item *model.Item) (err error) {
 	return
 }
 
-func (m *itemUsecase) GetItems(page, limit int64, search string) (items []model.Item, total int64, err error) {
+func (m *itemUsecase) GetItems(page, limit int64, search string) (items []domain.Item, total int64, err error) {
 	items, total, err = m.itemRepository.GetItems(helper.PageToOffset(page, limit), limit, search)
 	return
 }
 
-func (m *itemUsecase) GetItemDetails(id int64) (item model.Item, err error) {
+func (m *itemUsecase) GetItemDetails(id int64) (item domain.Item, err error) {
 	item, err = m.itemRepository.GetItemDetails(id)
 	return
 }
@@ -53,10 +53,10 @@ func (m *itemUsecase) DeleteItem(id int64) (err error) {
 	return
 }
 
-func (m *itemUsecase) UpdateItem(item *model.Item) (err error) {
+func (m *itemUsecase) UpdateItem(item *domain.Item) (err error) {
 	price := item.Price
 
-	item.Price = []model.Price{}
+	item.Price = []domain.Price{}
 	//get old image url
 	old_item, err := m.GetItemDetails(int64(item.ID))
 	if err != nil {

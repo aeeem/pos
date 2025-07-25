@@ -3,7 +3,7 @@ package seeder
 import (
 	"fmt"
 	"math/rand"
-	"pos/internal/model"
+	"pos/internal/domain"
 	"reflect"
 	"time"
 
@@ -15,13 +15,13 @@ import (
 func SeedItem(db *gorm.DB) {
 
 	ic := int64(0)
-	if err := db.Model(&model.Item{}).Count(&ic).Error; err != nil {
+	if err := db.Model(&domain.Item{}).Count(&ic).Error; err != nil {
 		panic(err)
 	}
 	faker := gofakeit.New(uint64(time.Now().Unix()))
 	if ic <= 0 {
 		for i := 0; i < 10; i++ {
-			ItemModels := model.Item{
+			ItemModels := domain.Item{
 				ItemName:     faker.Fruit(),
 				MaxPriceItem: int64(randRange(1000, 10000)),
 			}
@@ -34,7 +34,7 @@ func SeedItem(db *gorm.DB) {
 			}
 		}
 	} else {
-		items := []model.Item{}
+		items := []domain.Item{}
 		db.Find(&items)
 		for _, item := range items {
 			Seedprice(db, int64(item.ID))
@@ -44,7 +44,7 @@ func SeedItem(db *gorm.DB) {
 }
 func Seedprice(db *gorm.DB, itemID int64) {
 	ic := int64(0)
-	if err := db.Model(&model.Price{}).Where("item_id = ?", itemID).Count(&ic).Error; err != nil {
+	if err := db.Model(&domain.Price{}).Where("item_id = ?", itemID).Count(&ic).Error; err != nil {
 		panic(err)
 	}
 
@@ -52,7 +52,7 @@ func Seedprice(db *gorm.DB, itemID int64) {
 		units := []string{"kg", "grams", "pcs"}
 		for i := 0; i < 2; i++ {
 			unit := randArrStr(units)
-			PriceModels := model.Price{
+			PriceModels := domain.Price{
 				Price:  float64(randRange(1000, 10000)),
 				ItemID: uint(itemID),
 				Active: true,
@@ -82,12 +82,12 @@ func randArrStr(arr []string) string {
 	return arr[arrIndex]
 }
 
-func CustomerName(db *gorm.DB) model.Customer {
+func CustomerName(db *gorm.DB) domain.Customer {
 	Total := int64(0)
-	cust := model.Customer{}
-	err := db.Model(model.Customer{}).Count(&Total).Error
+	cust := domain.Customer{}
+	err := db.Model(domain.Customer{}).Count(&Total).Error
 
-	err = db.Model(model.Customer{}).First(&cust).Error
+	err = db.Model(domain.Customer{}).First(&cust).Error
 
 	if Total > 0 {
 		return cust

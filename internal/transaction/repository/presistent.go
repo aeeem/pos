@@ -1,9 +1,10 @@
 package repository
 
 import (
+	"pos/internal/domain"
+
 	"gorm.io/gorm"
 
-	"pos/internal/model"
 	"pos/internal/transaction"
 )
 
@@ -12,22 +13,22 @@ type transactionRepository struct {
 }
 
 func NewTransactionPresistentRepository(db *gorm.DB) transaction.TransactionRepository {
-	db.AutoMigrate(&model.Transaction{})
+	db.AutoMigrate(&domain.Transaction{})
 	return &transactionRepository{
 		DB: db,
 	}
 }
 
-func (t *transactionRepository) Savetransaction(transaction *model.Transaction) (err error) {
+func (t *transactionRepository) Savetransaction(transaction *domain.Transaction) (err error) {
 	err = t.DB.Create(&transaction).Error
 	if err != nil {
 		return
 	}
 	return
 }
-func (t *transactionRepository) GetTransactions(page, limit int64, search string, status model.Status, customerID int64) (transactions []model.Transaction, total int64, err error) {
+func (t *transactionRepository) GetTransactions(page, limit int64, search string, status domain.Status, customerID int64) (transactions []domain.Transaction, total int64, err error) {
 	total = int64(0)
-	err = t.DB.Model(&model.Transaction{}).Count(&total).Error
+	err = t.DB.Model(&domain.Transaction{}).Count(&total).Error
 	err = t.DB.Limit(int(limit)).Offset(int(page)).Preload("Cart",
 		func(db *gorm.DB) *gorm.DB {
 			return db.Order("carts.id ASC")
@@ -38,7 +39,7 @@ func (t *transactionRepository) GetTransactions(page, limit int64, search string
 	return
 }
 
-func (t *transactionRepository) GetTransactionDetails(id int64) (transaction model.Transaction, err error) {
+func (t *transactionRepository) GetTransactionDetails(id int64) (transaction domain.Transaction, err error) {
 	err = t.DB.Preload("Cart",
 		func(db *gorm.DB) *gorm.DB {
 			return db.Order("carts.id desc")
@@ -46,10 +47,10 @@ func (t *transactionRepository) GetTransactionDetails(id int64) (transaction mod
 	return
 }
 func (t *transactionRepository) Deletetransaction(id int64) (err error) {
-	err = t.DB.Delete(&model.Transaction{}, id).Error
+	err = t.DB.Delete(&domain.Transaction{}, id).Error
 	return
 }
-func (t *transactionRepository) Updatetransaction(transaction *model.Transaction) (err error) {
+func (t *transactionRepository) Updatetransaction(transaction *domain.Transaction) (err error) {
 	err = t.DB.Save(&transaction).Error
 	return
 }

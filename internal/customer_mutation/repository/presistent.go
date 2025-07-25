@@ -2,7 +2,7 @@ package repository
 
 import (
 	customermutation "pos/internal/customer_mutation"
-	"pos/internal/model"
+	"pos/internal/domain"
 
 	"gorm.io/gorm"
 )
@@ -16,7 +16,7 @@ func NewCustomerMutationRepository(db *gorm.DB) customermutation.CustomerMutatio
 		DB: db,
 	}
 }
-func (Cm *CustomerMutationRepository) SaveCustomerMutation(DebtMutation *model.CustomerDebtMutations) (err error) {
-	err = Cm.DB.Model(&model.CustomerDebtMutations{}).Create(&DebtMutation).Error
+func (Cm *CustomerMutationRepository) SaveCustomerMutation(DebtMutation *domain.CustomerDebtMutations) (err error) {
+	err = Cm.DB.Model(&domain.CustomerDebtMutations{}).Create(&DebtMutation).Error
 	return
 }

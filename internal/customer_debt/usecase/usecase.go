@@ -5,7 +5,7 @@ import (
 	"fmt"
 	customerdebt "pos/internal/customer_debt"
 	customermutation "pos/internal/customer_mutation"
-	"pos/internal/model"
+	"pos/internal/domain"
 	"pos/internal/mutation"
 	"time"
 
@@ -30,12 +30,12 @@ func NewCustomerUsecase(Cr customerdebt.CustomerDebtRepository,
 	}
 }
 
-func (c CustomerDebtUsecase) PayCustomerDebt(customerID int, transaction_id []int, amount float64) (Transactions []model.Transaction, Debts []model.CustomerDebt, err error) {
+func (c CustomerDebtUsecase) PayCustomerDebt(customerID int, transaction_id []int, amount float64) (Transactions []domain.Transaction, Debts []domain.CustomerDebt, err error) {
 	//get latest customer mutation incase there's balance available
 	//get last customer balance
 
 	if amount < 0 {
-		return []model.Transaction{}, []model.CustomerDebt{}, errors.New("amount must be greater than zero")
+		return []domain.Transaction{}, []domain.CustomerDebt{}, errors.New("amount must be greater than zero")
 	} else if amount == 0 {
 		msg = "payment using customer balance"
 	}
@@ -48,12 +48,12 @@ func (c CustomerDebtUsecase) PayCustomerDebt(customerID int, transaction_id []in
 	Balance += amount
 
 	TotalDebt := float64(0)
-	CustomerDebts := []model.CustomerDebt{}
+	CustomerDebts := []domain.CustomerDebt{}
 	for _, v := range transaction_id {
 		//get customer debt
 		thisTransactionDebt, err := c.CustomerDebt.GetByTransactionID(uint(v))
 		if err != nil {
-			return []model.Transaction{}, []model.CustomerDebt{}, err
+			return []domain.Transaction{}, []domain.CustomerDebt{}, err
 		}
 		TotalDebt += thisTransactionDebt.UnpaidAmount
 		ThisCurrentDebt := thisTransactionDebt.UnpaidAmount
@@ -64,12 +64,12 @@ func (c CustomerDebtUsecase) PayCustomerDebt(customerID int, transaction_id []in
 			thisTransactionDebt.UnpaidAmount = 0 // because already paid
 			err = c.CustomerDebt.PayCustomerDebt(customerID, "paid", v, ThisCurrentDebt)
 			if err != nil {
-				return []model.Transaction{}, []model.CustomerDebt{}, err
+				return []domain.Transaction{}, []domain.CustomerDebt{}, err
 			}
 			CustomerDebts = append(CustomerDebts, thisTransactionDebt)
 		} else if Balance <= 0 {
 			err = errors.New("not enough balance")
-			return []model.Transaction{}, []model.CustomerDebt{}, err
+			return []domain.Transaction{}, []domain.CustomerDebt{}, err
 		} else if ThisCurrentDebt > Balance { //if debt is more than Balance
 			//set half paid
 			ThisCurrentDebt = ThisCurrentDebt - Balance
@@ -78,7 +78,7 @@ func (c CustomerDebtUsecase) PayCustomerDebt(customerID int, transaction_id []in
 			// set it to 0 because the money already half paid the debt
 			err = c.CustomerDebt.PayCustomerDebt(customerID, "half_paid", v, Balance)
 			if err != nil {
-				return []model.Transaction{}, []model.CustomerDebt{}, err
+				return []domain.Transaction{}, []domain.CustomerDebt{}, err
 			}
 			Balance = 0
 			CustomerDebts = append(CustomerDebts, thisTransactionDebt)
@@ -91,7 +91,7 @@ func (c CustomerDebtUsecase) PayCustomerDebt(customerID int, transaction_id []in
 	//Insert customer mutation with latest balance which was Balance
 	//create mutation with latest balance
 
-	mutation := model.Mutation{
+	mutation := domain.Mutation{
 		CustomerID:      uint(customerID),
 		MutationType:    "cash_in",
 		Amount:          amount, //keep track latest payment amount
@@ -114,7 +114,7 @@ func (c CustomerDebtUsecase) PayCustomerDebt(customerID int, transaction_id []in
 		return
 	}
 	for _, v := range CustomerDebts {
-		DebtMutation := model.CustomerDebtMutations{
+		DebtMutation := domain.CustomerDebtMutations{
 			CustomerDebtID: v.ID,
 			MutationID:     mutation.ID,
 			CurrentDebt:    v.UnpaidAmount,
@@ -130,14 +130,14 @@ func (c CustomerDebtUsecase) PayCustomerDebt(customerID int, transaction_id []in
 	return
 }
 
-func (C CustomerDebtUsecase) GetByCustomerID(customerID uint, debtType string, dateFrom string, dateTo string, page, limit int, search string) (res []model.CustomerDebt, total int64, err error) {
+func (C CustomerDebtUsecase) GetByCustomerID(customerID uint, debtType string, dateFrom string, dateTo string, page, limit int, search string) (res []domain.CustomerDebt, total int64, err error) {
 	res, total, err = C.CustomerDebt.GetByCustomerID(customerID, debtType, dateFrom, dateTo, page, limit, search)
 	if err != nil {
 		return
 	}
 	return
 }
-func (C CustomerDebtUsecase) Fetch(debtType string, dateFrom string, dateTo string, page, limit int, search string) (res []model.CustomerDebt, total int64, err error) {
+func (C CustomerDebtUsecase) Fetch(debtType string, dateFrom string, dateTo string, page, limit int, search string) (res []domain.CustomerDebt, total int64, err error) {
 	res, total, err = C.CustomerDebt.Fetch(debtType, dateFrom, dateTo, page, limit, search)
 	if err != nil {
 		return
@@ -145,7 +145,7 @@ func (C CustomerDebtUsecase) Fetch(debtType string, dateFrom string, dateTo stri
 	return
 }
 
-func (C CustomerDebtUsecase) GetDebtDetails(debtID uint) (res model.CustomerDebt, err error) {
+func (C CustomerDebtUsecase) GetDebtDetails(debtID uint) (res domain.CustomerDebt, err error) {
 	res, err = C.CustomerDebt.GetDebtDetails(debtID)
 	if err != nil {
 		return

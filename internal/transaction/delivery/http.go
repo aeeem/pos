@@ -3,9 +3,9 @@ package delivery
 import (
 	"encoding/json"
 	"fmt"
+	"pos/internal/domain"
 	"pos/internal/helper"
 	"pos/internal/http_error"
-	"pos/internal/model"
 	"pos/internal/transaction"
 	"pos/internal/validator"
 	"strconv"
@@ -28,7 +28,6 @@ func NewTransactionHandler(transactionUsecase transaction.TransactionUsecase, f 
 	f.Get("/transaction", TransactionHandler.GetTransactions)
 	f.Get("/transaction/:id", TransactionHandler.GetTransactionDetails)
 	f.Post("/transaction", TransactionHandler.Savetransaction)
-
 	f.Put("/transaction/:id", TransactionHandler.Updatetransaction)
 	f.Delete("/transaction/:id", TransactionHandler.Deletetransaction)
 }
@@ -59,7 +58,7 @@ func (t TransactionHandler) GetTransactions(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		})
 	}
-	transactions, total, err := t.TransactionUsecase.GetTransactions(int64(GetRequest.Page), int64(GetRequest.Limit), GetRequest.Search, model.Status(GetRequest.Status), int64(GetRequest.CustomerID))
+	transactions, total, err := t.TransactionUsecase.GetTransactions(int64(GetRequest.Page), int64(GetRequest.Limit), GetRequest.Search, domain.Status(GetRequest.Status), int64(GetRequest.CustomerID))
 	if err != nil {
 		herr := http_error.CheckError(err)
 		return c.Status(fiber.ErrBadRequest.Code).JSON(fiber.Error{
@@ -133,7 +132,7 @@ func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		})
 	}
-	Transaction := model.Transaction{
+	Transaction := domain.Transaction{
 		CustomerName: SaveItemRequest.CustomerName,
 	}
 	if SaveItemRequest.CustomerID != 0 {
@@ -141,7 +140,7 @@ func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 
 	}
 	if SaveItemRequest.Status != nil {
-		Transaction.Status = model.Status(*SaveItemRequest.Status)
+		Transaction.Status = domain.Status(*SaveItemRequest.Status)
 	}
 
 	if SaveItemRequest.CustomerTransactionNo != 0 {
@@ -149,7 +148,7 @@ func (t TransactionHandler) Savetransaction(c *fiber.Ctx) error {
 	}
 	if len(SaveItemRequest.Cart) > 0 {
 		for _, v := range SaveItemRequest.Cart {
-			Transaction.Cart = append(Transaction.Cart, model.Cart{
+			Transaction.Cart = append(Transaction.Cart, domain.Cart{
 				TransactionID: uint(v.TransactionID),
 				ItemID:        uint(v.ItemID),
 				Quantity:      v.Quantity,
@@ -194,7 +193,7 @@ func (t TransactionHandler) Updatetransaction(c *fiber.Ctx) error {
 			Message: strings.Join(errMsgs, " and "),
 		})
 	}
-	Transaction := model.Transaction{
+	Transaction := domain.Transaction{
 		Model: gorm.Model{
 			ID: uint(id),
 		},
@@ -205,7 +204,7 @@ func (t TransactionHandler) Updatetransaction(c *fiber.Ctx) error {
 
 	}
 	if SaveItemRequest.Status != nil {
-		Transaction.Status = model.Status(*SaveItemRequest.Status)
+		Transaction.Status = domain.Status(*SaveItemRequest.Status)
 	}
 	if SaveItemRequest.CustomerTransactionNo != 0 {
 		Transaction.CustomerTransactionNo = uint(SaveItemRequest.CustomerTransactionNo)

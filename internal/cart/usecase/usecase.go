@@ -2,9 +2,9 @@ package usecase
 
 import (
 	"pos/internal/cart"
+	"pos/internal/domain"
 	"pos/internal/helper"
 	"pos/internal/item"
-	"pos/internal/model"
 	"pos/internal/price"
 )
 
@@ -29,11 +29,11 @@ func (c cartUsecase) DeleteCart(CartID uint) (err error) {
 	err = c.CartRepository.DeleteCart(CartID)
 	return
 }
-func (c cartUsecase) UpdateCart(Cart *model.Cart) (err error) {
+func (c cartUsecase) UpdateCart(Cart *domain.Cart) (err error) {
 	err = c.CartRepository.SaveCart(Cart)
 	return
 }
-func (c cartUsecase) SaveCart(cart *model.Cart) (err error) {
+func (c cartUsecase) SaveCart(cart *domain.Cart) (err error) {
 	// get price
 	items, err := c.ItemRepository.GetItemDetails(int64(cart.ItemID))
 	if err != nil {
@@ -52,7 +52,7 @@ func (c cartUsecase) SaveCart(cart *model.Cart) (err error) {
 	err = c.CartRepository.SaveCart(cart)
 	return
 }
-func (c cartUsecase) GetCartByTransactionID(page, limit int64, transactionID uint) (carts []model.Cart, total int64, err error) {
+func (c cartUsecase) GetCartByTransactionID(page, limit int64, transactionID uint) (carts []domain.Cart, total int64, err error) {
 	carts, total, err = c.CartRepository.GetCartByTransactionID(helper.PageToOffset(page, limit), limit, transactionID)
 
 	return

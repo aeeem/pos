@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"pos/internal/customer"
+	"pos/internal/domain"
 	"pos/internal/helper"
 	"pos/internal/http_error"
-	"pos/internal/model"
 	"pos/internal/validator"
 	"strings"
 
@@ -94,7 +94,7 @@ func (h *CustomerHandler) SaveCustomer(c *fiber.Ctx) (err error) {
 			Message: strings.Join(errMsgs, " and "),
 		}
 	}
-	Customer := model.Customer{
+	Customer := domain.Customer{
 		CustomerName: SaveRequest.CustomerName,
 		PhoneNumber:  SaveRequest.PhoneNumber,
 	}

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"pos/internal/customer"
-	"pos/internal/model"
+	"pos/internal/domain"
 
 	"gorm.io/gorm"
 )
@@ -19,12 +19,12 @@ func NewCustomerPresistentRepository(db *gorm.DB) customer.CustomerRepository {
 
 }
 
-func (r customerPresistentRepository) SaveCustomer(customer *model.Customer) (err error) {
+func (r customerPresistentRepository) SaveCustomer(customer *domain.Customer) (err error) {
 	err = r.db.Create(&customer).Error
 	return
 }
-func (r customerPresistentRepository) GetAllCustomer(offset, limit int64, search string) (customers []model.Customer, total int64, err error) {
-	err = r.db.Model(&model.Customer{}).Count(&total).Error
+func (r customerPresistentRepository) GetAllCustomer(offset, limit int64, search string) (customers []domain.Customer, total int64, err error) {
+	err = r.db.Model(&domain.Customer{}).Count(&total).Error
 	if err != nil {
 		return
 	}
@@ -34,12 +34,12 @@ func (r customerPresistentRepository) GetAllCustomer(offset, limit int64, search
 	}
 	return
 }
-func (r customerPresistentRepository) GetCustomerDetails(id int64) (customer model.Customer, err error) {
+func (r customerPresistentRepository) GetCustomerDetails(id int64) (customer domain.Customer, err error) {
 	return
 }
 func (r customerPresistentRepository) DeleteCustomer(id int64) (err error) {
 	return
 }
-func (r customerPresistentRepository) UpdateCustomer(customer *model.Customer) (err error) {
+func (r customerPresistentRepository) UpdateCustomer(customer *domain.Customer) (err error) {
 	return
 }

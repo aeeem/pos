@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"pos/internal/cart"
+	"pos/internal/domain"
 	"pos/internal/helper"
 	"pos/internal/http_error"
-	"pos/internal/model"
 	"pos/internal/validator"
 	"strconv"
 	"strings"
@@ -99,7 +99,7 @@ func (m CartHandler) SaveCart(c *fiber.Ctx) (err error) {
 			Message: strings.Join(errMsgs, " and "),
 		}
 	}
-	cart := model.Cart{
+	cart := domain.Cart{
 		TransactionID: uint(SaveItemRequest.TransactionID),
 		ItemID:        uint(SaveItemRequest.ItemID),
 		Quantity:      SaveItemRequest.Quantity,
@@ -147,7 +147,7 @@ func (m CartHandler) UpdateCart(c *fiber.Ctx) (err error) {
 			Message: strings.Join(errMsgs, " and "),
 		}
 	}
-	cart := model.Cart{
+	cart := domain.Cart{
 		Model: gorm.Model{
 			ID: uint(SaveItemRequest.ID),
 		},

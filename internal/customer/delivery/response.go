@@ -1,16 +1,16 @@
 package delivery
 
 import (
+	"pos/internal/domain"
 	"pos/internal/helper"
-	"pos/internal/model"
 )
 
 type CustomerListResponse struct {
-	Customers []model.Customer `json:"customers"`
+	Customers []domain.Customer `json:"customers"`
 	helper.ListResponse
 }
 
 type CustomerSaveOrUpdateResponse struct {
-	Customer model.Customer `json:"customer"`
+	Customer domain.Customer `json:"customer"`
 	helper.StandardResponse
 }

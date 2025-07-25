@@ -1,9 +1,8 @@
 package repository
 
 import (
+	"pos/internal/domain"
 	"pos/internal/item"
-
-	"pos/internal/model"
 
 	"github.com/gofiber/fiber/v2/log"
 	"gorm.io/gorm"
@@ -20,13 +19,13 @@ func NewItemPresistenRepository(db *gorm.DB) item.ItemRepository {
 	}
 }
 
-func (m itemPresistentRepository) SaveItem(item *model.Item) (err error) {
+func (m itemPresistentRepository) SaveItem(item *domain.Item) (err error) {
 	err = m.DB.Create(item).Error
 	return
 }
 
-func (m itemPresistentRepository) GetItems(offset, limit int64, search string) (items []model.Item, total int64, err error) {
-	err = m.DB.Model(&model.Item{}).Count(&total).Error
+func (m itemPresistentRepository) GetItems(offset, limit int64, search string) (items []domain.Item, total int64, err error) {
+	err = m.DB.Model(&domain.Item{}).Count(&total).Error
 	if err != nil {
 		return
 	}
@@ -38,16 +37,16 @@ func (m itemPresistentRepository) GetItems(offset, limit int64, search string) (
 	return
 }
 
-func (m itemPresistentRepository) GetItemDetails(id int64) (item model.Item, err error) {
+func (m itemPresistentRepository) GetItemDetails(id int64) (item domain.Item, err error) {
 	err = m.DB.Preload("Price").First(&item, id).Error
 	return
 }
 func (m itemPresistentRepository) DeleteItem(id int64) (err error) {
-	err = m.DB.Delete(&model.Item{}, id).Error
+	err = m.DB.Delete(&domain.Item{}, id).Error
 	return
 }
 
-func (m itemPresistentRepository) UpdateItem(item *model.Item) (err error) {
-	err = m.DB.Updates(item).Where("id = ?", item.ID).Model(&model.Item{}).Error
+func (m itemPresistentRepository) UpdateItem(item *domain.Item) (err error) {
+	err = m.DB.Updates(item).Where("id = ?", item.ID).Model(&domain.Item{}).Error
 	return
 }
